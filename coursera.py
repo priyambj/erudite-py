@@ -75,6 +75,7 @@ def get_specialization_links(url):
             if current_idx == exp_idx:
                 print('click' + str(current_idx))
                 expand_button.left_click()
+                time.sleep(20)
                 spec_pages.append(sess.body())
                 current_idx += 1
                 name = url.rsplit('/', 1)[-1]  
@@ -83,7 +84,7 @@ def get_specialization_links(url):
                 break
         else:
             break
-    
+        
             
     spec_urls = set()
     for sp in spec_pages:
@@ -93,6 +94,7 @@ def get_specialization_links(url):
             url = item['url']
             if url.startswith('https://www.coursera.org/specializations/'):
                 spec_urls.add(url)
+                print(url)
     return spec_urls
 
 spec_links = get_specialization_links('https://www.coursera.org/browse/data-science')
