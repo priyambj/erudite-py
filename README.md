@@ -37,5 +37,6 @@ This scraper goes to `https://www.coursera.org/browse/data-science?languages=en`
 
 This is scraper goes to `https://www.edx.org/course/subject/computer-science`, attempts to scroll down to force the loading of all the appropriate pages to load the URLS of each page. We then intend to scrape each page for details. 
 
+> Currently, this process does not work. The dryscrape engine executes the scrolling function intermittently within the webkit-server engine and does not force a reload of more pages more than once or twice. We need a new solution to this issue.  
 
 
