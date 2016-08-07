@@ -25,7 +25,7 @@ class Scraper:
                 print('WARN: overwrite existing scraper.')
             self.website_scrapers[website_name] = ws
 
-    def scrape(self, url):
+    def scrape(self, url, wait=5):
         if isinstance(url, str):
             url = [url]
         data = list()
@@ -38,7 +38,7 @@ class Scraper:
 
             try:
                 print(s_name, 'scraping', u, '...')
-                d = s.scrape(u)
+                d = s.scrape(u, wait)
             except:
                 # protection if any scraper fails...
                 print(s_name, 'failed to handle "', u, '"')

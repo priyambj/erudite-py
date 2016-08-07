@@ -8,6 +8,8 @@ import dryscrape
 import time
 import json
 
+from scraper import erudite_schema as es
+
 from tqdm import tqdm
 
 if 'linux' in sys.platform:

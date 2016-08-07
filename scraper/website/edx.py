@@ -8,33 +8,34 @@ from tqdm import tqdm
 from scraper.erudite_schema import LearningResource
 from statsmodels.regression.tests.test_quantile_regression import idx
 from idlelib.idle_test.test_helpabout import About
-from sympy.tensor.indexed import Idx
 
-class Coursera(WebsiteInterface):
+class EDX(WebsiteInterface):
 
     def __init__(self):
-        self.name = 'CourseraScraper'
+        self.name = 'EDXScraper'
 
     def can_handle(self, url):
-        if url == 'https://www.coursera.org/browse/data-science':
+        if url.startswith('https://www.edx.org/course/'):
             return True
         else:
             return False
 
     def scrape(self, url, wait=5):
-        print('    Coursera: Scrape specializations from: ' + url)
-        specializations = self.get_specializations(url, wait)
+        specializations = self.scroll_and_spider(url)
         data = list()
+        print('EDX: Scrape course info of specialization...')
         for l in tqdm(specializations):
-            print('\n    Coursera: Scrape ' + l)
-            data.extend(self.get_specializations_info(l, wait))
-            print('    Coursera: ' + str(len(data)) + ' courses loaded')
+            data.extend(self.get_specializations_info(l))
         return data
 
-    def get_specializations(self, url, wait=5):
-    
+    """
+    Scroll to the bottom of the page and grab all the course links. 
+    """
+    def scroll_and_spider(self, url, wait=5):
         sess = get_js_session(url, wait=wait, viewport=(1024, 768))
-            
+        
+        infinite_scroll_to_bottom(sess, 360, 30)
+        
         spec_pages = list()
         current_idx = 0
         while True:
@@ -42,12 +43,7 @@ class Coursera(WebsiteInterface):
                 if current_idx == exp_idx:
                     # print('click')
                     expand_button.click()
-                    
-                    #sleep(wait)
-                    print('    Coursera: Scrape ' + url + ", clicking button " + str(current_idx))
-           
-                    wait_until_session_stable(sess)
-                    
+                    sleep(2)
                     spec_pages.append(sess.body())
                     current_idx += 1
                     sess = get_js_session(url, wait=wait, viewport=(1024, 768))
@@ -71,9 +67,7 @@ class Coursera(WebsiteInterface):
         # expand all syllabus details
         self.click_buttons(sess, "//div[contains(@class, 'course-show-syllabus-text')]")
 
-        wait = wait_until_session_stable(sess)
-        #sleep(wait)
-
+        sleep(1)
         soup = BeautifulSoup(sess.body(), "lxml")
         courses = soup.find_all('div', attrs={'class': 'rc-SingleCourse'})
         data = list()
@@ -96,15 +90,8 @@ class Coursera(WebsiteInterface):
             c_dict[Fields.title] = title
             c_dict[Fields.description] = about
             c_dict[Fields.syllabus] = syllabus
-            
-            """lr = LearningResource()
-            lr.id = idx
-            lr.title = titles
-            lr.description = About
-            lr.syllabus = syllabus"""
           
             data.append(c_dict)
-            
         sess.reset()
         return data
 
