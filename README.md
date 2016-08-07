@@ -29,5 +29,13 @@ df = scraper.scrape(urls)
 df.to_csv('EDX' + format(datetime.datetime.now()) + '.tsv', sep='\t', encoding='utf-8')
 ```
 
+### Coursera
+
+This scraper goes to `https://www.coursera.org/browse/data-science?languages=en`, clicks on each Button marked 'See All', loads each one of the course pages from the resultant links and then scrapes them for details.
+
+### EDX
+
+This is scraper goes to `https://www.edx.org/course/subject/computer-science`, attempts to scroll down to force the loading of all the appropriate pages to load the URLS of each page. We then intend to scrape each page for details. 
+
 
 
