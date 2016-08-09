@@ -37,9 +37,10 @@ RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
     apt-get clean && apt-get autoremove
 COPY start-notebook.sh /usr/local/bin/
 RUN chown -R $DUSER:users /home/$DUSER/.jupyter && chmod 777 /usr/local/bin/start-notebook.sh
+EXPOSE 8882
 
 USER $DUSER
 RUN git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
 WORKDIR /home/$DUSER
-CMD ["start-notebook.sh"]
+CMD ["/bin/bash"]
 USER $DUSER
