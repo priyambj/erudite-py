@@ -47,3 +47,9 @@ docker run -i -t -p 8882:8882 /bin/bash floriangeigl/erudite
 ```
 The framework within the docker image can be found at /home/erudite/erudite/. Please consider using ```git pull``` within this directory to update to the latest version available. The included ipython notebooks should then be available at localhost:8882.
 
+### Updating to the latest docker image
+After the inital run you can always update to the latest docker image using:
+```
+docker pull floriangeigl/erudite
+```
+Please be aware that your data within the docker image might get lost during the update. Hence we recommend to commit and push your changes to the erudite github-repository before doing the udpate.
