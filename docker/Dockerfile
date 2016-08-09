@@ -19,7 +19,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y htop
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
 USER $DUSER
-RUN cd wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
+RUN cd /home/$DUSER && wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
 RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda 
