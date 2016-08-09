@@ -9,8 +9,8 @@ RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
 RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda 
-RUN /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras \
-    -c floriangeigl -c conda-forge -c bioconda -c jaikumarm
+RUN /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 \
+    -c pkgw -c floriangeigl -c conda-forge -c bioconda -c jaikumarm
 RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
     touch /etc/apt/sources.list.d/graph-tool.list && \
     echo 'deb http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
