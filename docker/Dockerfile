@@ -35,12 +35,14 @@ RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
     apt-get update && apt-get install -y python-graph-tool && \
     ln -s /usr/lib/python2.7/dist-packages/graph_tool /opt/conda/lib/python2.7/site-packages/graph_tool && \
     apt-get clean && apt-get autoremove
-COPY start-notebook.sh /usr/local/bin/
-RUN chown -R $DUSER:users /home/$DUSER/.jupyter && chmod 777 /usr/local/bin/start-notebook.sh
-EXPOSE 8882
-
-USER $DUSER
-RUN git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
+EXPOSE 8888
 WORKDIR /home/$DUSER
-CMD ["/bin/bash"]
+CMD ["startup.sh"]
+
+COPY start-notebook.sh /usr/local/bin/
+COPY startup.sh /usr/local/bin/
+RUN chmod 777 /usr/local/bin/start-notebook.sh /usr/local/bin/startup.sh
+RUN chown -R $DUSER:users /home/$DUSER/.jupyter
+RUN git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
+
 USER $DUSER
