@@ -38,5 +38,11 @@ This scraper goes to `https://www.coursera.org/browse/data-science?languages=en`
 This is scraper goes to `https://www.edx.org/course/subject/computer-science`, attempts to scroll down to force the loading of all the appropriate pages to load the URLS of each page. We then intend to scrape each page for details. 
 
 > Currently, this process does not work. The dryscrape engine executes the scrolling function intermittently within the webkit-server engine and does not force a reload of more pages more than once or twice. We need a new solution to this issue.  
-
+Docker
+---
+We also provide a docker image including all needed libraries to run the framework. The docker image can be run using 
+```
+docker run -i -t -p 8882:8882 /bin/bash floriangeigl/erudite
+```
+The framework within the docker image can be found at /opt/erudite/. Please consider using ```git pull``` to update to the latest version available. The included ipython notebooks should then be available at localhost:8882.
 
