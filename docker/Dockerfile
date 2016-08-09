@@ -2,23 +2,23 @@ FROM ubuntu:16.04
 MAINTAINER Florian Geigl <florian.geigl@gmail.com>
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
-ENV DUSER erudite
-ENV DUID 1000
-ENV CONDA_DIR /opt/conda/
-RUN useradd -m -s /bin/bash -N -u $DUID $DUSER && \
-    chown $DUSER /opt/
-RUN mkdir -p /home/$DUSER/ && \
-    mkdir /home/$DUSER/.jupyter && \
-    mkdir -p -m 700 /home/$DUSER/.local/share/jupyter && \
-    echo "cacert=/etc/ssl/certs/ca-certificates.crt" > /home/$DUSER/.curlrc
-
 RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen
 RUN apt-get update && apt-get upgrade -y && apt-get install -y htop 
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
+ENV DUSER erudite
+ENV DUID 1000
+ENV CONDA_DIR /opt/conda/
+RUN useradd -m -s /bin/bash -N -u $DUID $DUSER && \
+    chown $DUSER /opt/
+
 USER $DUSER
+RUN mkdir -p /home/$DUSER/ && \
+    mkdir /home/$DUSER/.jupyter && \
+    mkdir -p -m 700 /home/$DUSER/.local/share/jupyter && \
+    echo "cacert=/etc/ssl/certs/ca-certificates.crt" > /home/$DUSER/.curlrc
 RUN cd /home/$DUSER && wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
@@ -36,9 +36,10 @@ RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
     ln -s /usr/lib/python2.7/dist-packages/graph_tool /opt/conda/lib/python2.7/site-packages/graph_tool && \
     apt-get clean && apt-get autoremove
 COPY start-notebook.sh /usr/local/bin/
-RUN chown -R $DUSER:users /home/$DUSER/.jupyter
+RUN chown -R $DUSER:users /home/$DUSER/.jupyter && chmod 777 /usr/local/bin/start-notebook.sh
 
 USER $DUSER
 RUN git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
-CMD ["cd /home/$DUSER/erudite && /usr/bin/screen -dmS ipython usr/local/bin/start-notebook.sh || cd /home/$DUSER/ && /bin/bash"]
+WORKDIR /home/$DUSER
+CMD ["start-notebook.sh"]
 USER $DUSER
