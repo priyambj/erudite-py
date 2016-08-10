@@ -45,7 +45,7 @@ We also provide a docker image including all needed libraries to run the framewo
 ```
 docker run -i -t -p 8888:8888 floriangeigl/erudite
 ```
-The framework within the docker image can be found at /home/erudite/erudite/. Please consider using ```git pull``` within this directory to update to the latest version available. The included ipython notebooks should then be available at localhost:8888.
+The framework within the docker image can be found at /home/erudite/erudite/. Please consider using ```git pull``` within this directory to update to the latest version available. The included ipython notebooks should then be available at localhost:8888. Hint: If you need root privileges within the container add ```-u root``` to the run command. 
 
 ### Updating to the latest docker image
 After the inital run you can always update to the latest docker image using:
