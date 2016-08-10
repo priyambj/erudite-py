@@ -1,12 +1,16 @@
 from pprint import pprint
 
-"""
- A Provider is an organization that generates and supports a LearningResource. 
- 
-"""
-
 
 class Provider:
+    """
+     A Provider is an organization that generates and supports a LearningResource.
+
+    """
+
+    """
+     The name of the provider
+    """
+
     id = ''
 
     """
@@ -57,13 +61,15 @@ class Provider:
         pass
 
 
-"""
- An Instructor is an individual who facilitates the delivery of 
- a LearningResource to students. 
-"""
-
-
 class Instructor:
+    """
+     An Instructor is an individual who facilitates the delivery of
+     a LearningResource to students.
+    """
+
+    """
+     Full name of the instructor
+    """
     id = ''
 
     """
@@ -96,55 +102,94 @@ class Instructor:
     """
     job_title = ''
 
-    has_bio = []
+    has_bio = set()
 
-    works_for = []
+    works_for = set()
 
-    teaches = []
+    teaches = set()
 
     def __init__(self):
         pass
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def print_info(self):
+        pprint(vars(self))
 
 
 class Bio:
     """
      The biography of the instructor
     """
+
+    """
+     Url of the biography
+    """
+    id = ''
+
+    """
+     The biography itself.
+    """
     bio = ''
 
+    """
+     Owner of the biography.
+    """
     bio_owner = Instructor()
+
+    """
+     Url of the biography
+    """
+    url = ''
 
     def __init__(self):
         pass
 
+    def __hash__(self):
+        return hash(self.id)
 
-"""
- Tags are designated as ontological labels associated with Learning 
- Resources. 
-"""
+    def print_info(self):
+        pprint(vars(self))
 
 
 class Tag:
+    """
+     Tags are designated as ontological labels associated with Learning
+     Resources.
+    """
+
     """
      What is the tag?
     """
     concept_tag = ''
 
-    tagged = []
+    """
+     Set of resource ids tagged with this tag.
+    """
+    tagged = set()
 
     def __init__(self):
         pass
 
+    def __hash__(self):
+        return hash(self.concept_tag)
 
-"""
- A learning resource could be an MOOC course or program, a university 
- course or program, a tutorial document, a textbook or any other 
- digital resource that has a pedagogical purpose and is indexed 
- in our system. 
-"""
+    def print_info(self):
+        pprint(vars(self))
 
 
 class LearningResource:
+    """
+     A learning resource could be an MOOC course or program, a university
+     course or program, a tutorial document, a textbook or any other
+     digital resource that has a pedagogical purpose and is indexed
+     in our system.
+    """
+
+    """
+     Url of the resource.
+    """
     id = ''
 
     """
@@ -185,7 +230,7 @@ class LearningResource:
     slug = ''
 
     """
-     A string describing the prequesites of this resource
+     A string describing the perquisites of this resource
     """
     prerequisite = ''
 
@@ -232,7 +277,7 @@ class LearningResource:
     price = ''
 
     """
-     What t
+     Version of the resource
     """
     has_version = ''
 
@@ -256,13 +301,18 @@ class LearningResource:
     """
     license = ''
 
+    """
+     Ordered Course-ids (urls) of a series, specialization etc.
+    """
+    courses = list()
+
     venue = ''
 
-    is_teacher = []
+    is_teacher = set()
 
-    has_tag = []
+    has_tag = set()
 
-    provider = []
+    provider = set()
 
     objectives = ''
 
@@ -270,6 +320,9 @@ class LearningResource:
 
     def __init__(self):
         pass
+
+    def __hash__(self):
+        return hash(self.id)
 
     def print_info(self):
         pprint(vars(self))

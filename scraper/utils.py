@@ -2,16 +2,15 @@ from __future__ import print_function
 from time import sleep
 from bs4 import BeautifulSoup
 import datetime
-
 import sys
 
 
-def get_soup(url, js=False, wait=5, return_session=False):
+def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
     if js:
-        session = get_js_session(url)
+        session = get_js_session(url, verbose=verbose)
         content = session.body()
     else:
-        page, session = get_rq_page(url, wait=wait, return_session=True)
+        page, session = get_rq_page(url, wait=wait, return_session=True, verbose=verbose)
         content = page.content
 
     soup = BeautifulSoup(content, "lxml")
@@ -21,7 +20,7 @@ def get_soup(url, js=False, wait=5, return_session=False):
         return soup
 
 
-def get_js_session(url, viewport=(1024, 768), render_fn=None):
+def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0):
     import dryscrape
 
     if 'linux' in sys.platform:
@@ -34,7 +33,7 @@ def get_js_session(url, viewport=(1024, 768), render_fn=None):
     sess.visit(url)
 
     # print("loading page from " + url)
-    wait_until_session_stable(sess)
+    wait_until_session_stable(sess, verbose=verbose)
     # print("Wait " + str(wait) + " seconds")
     # sleep(wait)
 
@@ -52,27 +51,27 @@ def get_js_session(url, viewport=(1024, 768), render_fn=None):
 """
 
 
-def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5):
+def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5, verbose=0):
     start = datetime.datetime.now()
     end = start + datetime.timedelta(seconds=max_wait)
-    print('chillout', end='')
+    v_print(verbose, 'chillout', end='')
     last_len = len(sess.body())
     c = queue_length
     while datetime.datetime.now() <= end and c > 0:
         sess_len = len(sess.body())
         if sess_len == last_len:
             c -= 1
-            print('.', end='')
+            v_print(verbose, '.', end='')
         else:
             last_len = sess_len
             c = queue_length
-            print('+', end='')
+            v_print(verbose, '+', end='')
         sleep(time_res)
-    print()
+    v_print(verbose)
     return c == 0
 
 
-def get_rq_page(url, wait=5, return_session=True):
+def get_rq_page(url, wait=5, return_session=True, verbose=0):
     import requests
 
     session = requests.Session()
@@ -85,21 +84,30 @@ def get_rq_page(url, wait=5, return_session=True):
         return page
 
 
-def click_buttons(sess, xpath):
+def click_buttons(sess, xpath, verbose=0):
     for button in sess.xpath(xpath):
-        # print('click button')
+        v_print(verbose, 'click button')
         try:
             button.click()
         except:
-            # print('\tdone')
+            v_print(verbose, '\tdone')
             break
 
 
-def save_get_text(soup):
-    if soup is None:
-        return None
-    else:
-        try:
-            return soup.getText(separator=u' ')
-        except:
-            return None
+def save_get_text(soup, blank_value=''):
+    try:
+        return soup.getText(separator=u' ').strip()
+    except AttributeError:
+        return blank_value
+
+
+def v_print(v, *args, **kwargs):
+    if v:
+        print(*args, **kwargs)
+
+
+def render_js_sess(sess, fn):
+    if not isinstance(fn, str) or fn != '':
+        fn = str(fn)
+        if not fn.endswith('.png'): fn += '.png'
+        sess.render(fn + ".png")
