@@ -39,16 +39,17 @@ class Scraper:
             try:
                 print(s_name, 'scraping', u, '...')
                 d = s.scrape(u, wait)
+                if isinstance(d, dict):
+                    d = [d]
+                for i in d:
+                    i['scraper'] = s_name
+                data.extend(d)
             except:
                 # protection if any scraper fails...
                 print(s_name, 'failed to handle "', u, '"')
                 fails[s_name] += 1
                 print(traceback.format_exc())
-            if isinstance(d, dict):
-                d = [d]
-            for i in d:
-                i['scraper'] = s_name
-            data.extend(d)
+
         df_data = list()
         unused_fields = set()
         for course in data:

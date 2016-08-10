@@ -10,10 +10,10 @@ scraper.register_website(Coursera())
 scraper.register_website(EDX())
 
 urls = ['none',
-        'https://www.edx.org/course/subject/computer-science']
+        'https://www.edx.org/course/subject/data-analysis-statistics']
 #        'https://www.coursera.org/browse/data-science']
 
 df = scraper.scrape(urls)
 
-df.to_pickle('EDX' + format(datetime.datetime.now()) + '.pkl')
-df.to_csv('EDX' + format(datetime.datetime.now()) + '.tsv', sep='\t', encoding='utf-8')
+#df.to_pickle('EDX' + format(datetime.datetime.now()) + '.pkl')
+#df.to_csv('EDX' + format(datetime.datetime.now()) + '.csv', sep='\t', encoding='utf-8')
