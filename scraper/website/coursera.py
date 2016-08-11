@@ -1,14 +1,9 @@
-from scraper.field_definitions import Fields
 from scraper.website.website_interface import WebsiteInterface
 from scraper.utils import *
-from time import sleep
 import json
 from tqdm import tqdm
 
 from scraper.erudite_schema import LearningResource
-from statsmodels.regression.tests.test_quantile_regression import idx
-from idlelib.idle_test.test_helpabout import About
-from sympy.tensor.indexed import Idx
 
 
 class Coursera(WebsiteInterface):

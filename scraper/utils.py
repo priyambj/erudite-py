@@ -125,6 +125,8 @@ def extract_data(obj, fields, blank_value=''):
                     val = val[0]
                 else:
                     val = ''
+            elif not isinstance(val, str):
+                val = str(val)
         except KeyError:
             val = blank_value
         d.append(val)

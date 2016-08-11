@@ -12,9 +12,10 @@ class EDX(WebsiteInterface):
 
     def __init__(self):
         WebsiteInterface.__init__(self)
-        self.name = 'EDX'
+        self.name = 'edX'
         self.base_url = 'https://www.edx.org'
         self.instructors = dict()
+        self.providers = dict()
 
     def can_handle(self, url):
         if url.startswith('https://www.edx.org'):
@@ -49,24 +50,24 @@ class EDX(WebsiteInterface):
                         print('add course from xseries:', cl, '\n')
                     course_links.add(cl)
                 data.add(xs)
-                # break
             except KeyboardInterrupt:
                 break
             except:
                 print('xseries failed:', l)
                 print(traceback.format_exc())
+            break
 
         print('EDX: Scrape course info of courses...')
         for l in tqdm(list(filter(lambda x: 'www.edx.org/course/' in x, course_links))):
             try:
                 c = self.get_course_info(l)
                 data.add(c)
-                # break
             except KeyboardInterrupt:
                 break
             except:
                 print('course failed:', l)
                 print(traceback.format_exc())
+            break
         return data
 
     """
@@ -85,15 +86,12 @@ class EDX(WebsiteInterface):
         return links
 
     def get_course_info(self, url, verbose=0):
-        sess = get_js_session(url)
-        click_buttons(sess, "//span[contains(@class, 'see-more-label')]")
-        click_buttons(sess, "//span[contains(@class, 'show-content-cta')]")
-        wait_until_session_stable(sess)
-        soup = BeautifulSoup(sess.body(), "lxml")
+        soup = self.get_expanded_soup(url)
 
         course = LearningResource()
         course.id = url
         course.url = url
+        course.slug = url.rsplit('/', 1)[-1]
         course.title = save_get_text(soup.find('h1', attrs={'class': 'course-intro-heading'}))
         course.subtitle = save_get_text(soup.find('p', attrs={'class': 'course-intro-lead-in'}))
         course.rating = save_get_text(soup.find('span', attrs={'class': 'ct-widget-stars__rating-stat'}))
@@ -106,6 +104,8 @@ class EDX(WebsiteInterface):
         try:
             course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
                 'Prerequisites', 1)[-1].strip().strip(':').strip()
+            if course.prerequisite.lower().strip().strip('.') == 'none':
+                course.prerequisite = ''
         except AttributeError:
             pass
         try:
@@ -113,29 +113,67 @@ class EDX(WebsiteInterface):
         except AttributeError:
             pass
         # details
+        self.add_details_panel(course, soup)
 
-        course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), 'Languages')
-        course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
-        course.typical_learning_time = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
-        course.difficulty = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
-        course.venue = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'school'})), 'Institution')
-        course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
         instructors = self.get_instructors(soup, course, verbose=verbose)
         course.instructors.update(instructors)
         if verbose:
             course.print_info()
         return course
 
-    def get_series_info(self, url, verbose=0):
+    def add_details_panel(self, course, soup):
+        course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})),
+                                             'Languages')
+        course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
+        course.typical_learning_time = self.field_cleanup(
+            save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
+        course.difficulty = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
+        provider = Provider()
+        provider.id = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'school'})), 'Institution')
+        try:
+            provider = self.providers[provider]
+        except KeyError:
+            try:
+                provider_url = self.base_url + soup.find('li', attrs={'data-field': 'school'}).find('a')['href']
+                provider = self.get_provider(provider_url, provider)
+                self.providers[provider] = provider
+            except AttributeError:
+                pass
+
+        course.provider = provider
+        course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
+
+    def get_provider(self, url, provider=None):
+        soup = self.get_expanded_soup(url)
+        if provider is None:
+            provider = Provider()
+            page_title = soup.find('h1', attrs={'id': 'page-title'})
+            try:
+                subtitle = save_get_text(page_title.find('span', attrs={'class': 'subtitle'}))
+                page_title = save_get_text(page_title).replace(subtitle, '').strip()
+            except AttributeError:
+                page_title = save_get_text(page_title)
+            provider.id = page_title
+        provider.description = save_get_text(soup.find('div', attrs={'id': 'block-system-main', 'class': 'block'}))
+        provider.url = url
+        return provider
+
+    @staticmethod
+    def get_expanded_soup(url):
         sess = get_js_session(url)
         click_buttons(sess, "//span[contains(@class, 'see-more-label')]")
         click_buttons(sess, "//span[contains(@class, 'show-content-cta')]")
         wait_until_session_stable(sess)
         soup = BeautifulSoup(sess.body(), "lxml")
+        return soup
+
+    def get_series_info(self, url, verbose=0):
+        soup = self.get_expanded_soup(url)
 
         course = LearningResource()
         course.id = url
         course.url = url
+        course.slug = url.rsplit('/', 1)[-1]
         course.title = save_get_text(soup.find('div', attrs={'class': 'org-label'}).find_next('h1'))
         course.subtitle = save_get_text(soup.find('p', attrs={'class': 'banner-description'}))
         overview_div = soup.find('div', attrs={'class': 'overview'})
@@ -150,23 +188,9 @@ class EDX(WebsiteInterface):
         except AttributeError:
             pass
 
-        # course.rating = save_get_text(soup.find('span', attrs={'class': 'ct-widget-stars__rating-stat'}))
-
-
-        # course.syllabus = save_get_text(soup.find('div', attrs={'class': 'syllabus-content'}))
-        # course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
-        #    'Prerequisites', 1)[-1].strip().strip(':').strip()
-        # course.available = self.field_cleanup(save_get_text(soup.find('div', attrs={'class': 'course-start'}).parent), 'Enroll Now', pos=0)
-
         # details
-        course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), ['Languages', 'Language'])
-        course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
-        course.typical_learning_time = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
-        course.difficulty = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
-        course.venue = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'school'})), 'Institution')
-        course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
-        # instructors = self.get_instructors(soup, course, verbose=verbose)
-        # course.is_teacher.update(instructors)
+        self.add_details_panel(course, soup)
+
         try:
             for card in soup.find('section', attrs={'id': 'courses'}).findAll('div', attrs={'class': 'discovery-card'}):
                 try:
@@ -244,8 +268,8 @@ class EDX(WebsiteInterface):
                 bio.id = bio.url
                 if bio not in instructor.biography:
                     bio.instructor_id = instructor.id
-                    bio.bio = self.get_bio(bio_url)
-                    if bio.bio != '':
+                    bio.bio, bio_soup = self.get_bio(bio_url, return_soup=True)
+                    if bio:
                         instructor.biography.add(bio)
                         if verbose:
                             print('-' * 80)
@@ -253,6 +277,28 @@ class EDX(WebsiteInterface):
                             print(bio.print_info())
                             print('-' * 80)
                         updates = True
+                        try:
+                            bio_jobtitle = save_get_text(bio_soup.find('ul', attrs={'class': 'org-roles'}))
+                            instructor.job_title = max([bio_jobtitle, instructor.job_title], key=len)
+                        except AttributeError:
+                            pass
+                        try:
+                            bio_worksfor = bio_soup.find('li', attrs={'class': 'org-name'})
+                            try:
+                                worksfor_link = bio_worksfor.find('a')['href']
+                                if worksfor_link:
+                                    provider = self.get_provider(worksfor_link)
+                                    try:
+                                        provider = self.providers[provider]
+                                    except KeyError:
+                                        self.providers[provider] = provider
+                                    instructor.works_for = provider
+                            except AttributeError:
+                                worksfor_link = ''
+                            if worksfor_link == '':
+                                instructor.works_for = save_get_text(bio_worksfor)
+                        except AttributeError:
+                            pass
 
             if updates:
                 self.instructors[instructor] = instructor
@@ -265,19 +311,22 @@ class EDX(WebsiteInterface):
         return instructors
 
     @staticmethod
-    def get_bio(url, verbose=0):
+    def get_bio(url, verbose=0, return_soup=False):
         soup = get_soup(url, js=True, verbose=verbose)
         try:
-            return save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
+            bio = save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
         except AttributeError:
-            return ''
+            bio = ''
+        if return_soup:
+            return bio, soup
+        else:
+            return bio
 
     def scrape_bio(self, url, verbose=0):
         b = Bio()
         b.url = url
         b.id = url
         b.bio = self.get_bio(url, verbose=verbose)
-        # Maybe also create and add Instructor....
         return b
 
     """

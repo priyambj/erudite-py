@@ -53,6 +53,7 @@ class Scraper:
 
         print('extract data for database...')
         added_instructors = set()
+        added_providers = set()
         for d in tqdm(data):
             if isinstance(d, LearningResource):
                 table_name = 'learning_resource'
@@ -87,15 +88,24 @@ class Scraper:
                         works_for = i.works_for
                         if isinstance(works_for, basestring):
                             data_dict[table_name].append([i.id, works_for, ''])
+                        elif isinstance(works_for, Provider):
+                            data_dict[table_name].append([i.id, works_for.id, ''])
                         else:
                             for w in i.works_for:
                                 data_dict[table_name].append([i.id, w, ''])
                     table_name = 'teaches'
                     columns_dict[table_name] = ['instructor_id', 'resource_id']
                     data_dict[table_name].append([i.id, d.id])
-                table_name = 'provides'
-                columns_dict[table_name] = ['provider_id', 'resource_id']
-                data_dict[table_name].append([d.venue, d.id])
+                provider = d.provider
+                if provider:
+                    table_name = 'provides'
+                    columns_dict[table_name] = ['provider_id', 'resource_id']
+                    data_dict[table_name].append([provider.id, d.id])
+                    if provider not in added_providers:
+                        added_providers.add(provider)
+                        table_name = 'provider'
+                        columns_dict[table_name] = provider.db_fields
+                        data_dict[table_name].append(extract_data(provider, provider.db_fields))
 
             elif isinstance(d, Instructor):
                 if i not in added_instructors:
@@ -107,7 +117,6 @@ class Scraper:
                 pass
             else:
                 print("can't handle the following instance retrieved from scraper:", d)
-            print('-' * 80)
 
         if len(self.fails) > 0:
             print('statistics of scraper fails:')

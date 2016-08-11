@@ -16,6 +16,9 @@ for key, val in df_dict.items():
     # print(val.head(2))
     val.to_csv(key + '.csv', encoding='utf-8')
 
+# please ignore the KeyError on exit - it is a bug in one of the used libraries. I've already submitted a pull request
+# to fix this bug.
+
 
 #df.to_pickle('EDX' + format(datetime.datetime.now()) + '.pkl')
 #df.to_csv('EDX' + format(datetime.datetime.now()) + '.csv', sep='\t', encoding='utf-8')

@@ -7,6 +7,9 @@ class Provider:
 
     """
 
+    db_fields = ['id', 'name', 'description', 'alternate_name', 'city', 'state',
+                 'latitude', 'url']
+
     def __init__(self):
         """
          Init all members to default values
@@ -50,16 +53,24 @@ class Provider:
         """
          The latitude of the provider.
         """
-        self.latitude = 0.0
+        self.latitude = ''
 
         """
          A URL where the provider is found online
         """
         self.url = ''
 
-        self.provides = []
+    def __bool__(self):
+        return self.id != ''
 
-        self.is_worker = []
+    def __hash__(self):
+        return hash(self.id)
+
+    def print_info(self):
+        pprint(vars(self))
+
+    def __str__(self):
+        return self.id
 
 
 class Instructor:
@@ -122,6 +133,9 @@ class Instructor:
     def print_info(self):
         pprint(vars(self))
 
+    def __bool__(self):
+        return self.id != ''
+
 
 class Bio:
     """
@@ -164,6 +178,9 @@ class Bio:
     def print_info(self):
         pprint(vars(self))
 
+    def __bool__(self):
+        return self.bio != ''
+
 
 class Tag:
     """
@@ -191,6 +208,9 @@ class Tag:
 
     def print_info(self):
         pprint(vars(self))
+
+    def __bool__(self):
+        return self.concept_tag != ''
 
 
 class LearningResource:
@@ -334,15 +354,27 @@ class LearningResource:
          Ordered Course-ids (urls) of a series, specialization etc.
         """
         self.courses = list()
+        """
+         Set of Instructor instances.
+        """
         self.instructors = set()
-        self.has_tag = set()
-        self.provider = set()
+        """
+         Set of Tag instances.
+        """
+        self.tags = set()
+        """
+         Provider instances of the provider (see class Provider)
+        """
+        self.provider = Provider()
 
     def __hash__(self):
         return hash(self.id)
 
     def print_info(self):
         pprint(vars(self))
+
+    def __bool__(self):
+        return self.id != ''
 
 
 
