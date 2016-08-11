@@ -55,7 +55,7 @@ class EDX(WebsiteInterface):
             except:
                 print('xseries failed:', l)
                 print(traceback.format_exc())
-            # break
+            break
 
         print('EDX: Scrape info of courses...')
         for l in tqdm(list(filter(lambda x: 'www.edx.org/course/' in x, course_links))):
@@ -67,7 +67,7 @@ class EDX(WebsiteInterface):
             except:
                 print('course failed:', l)
                 print(traceback.format_exc())
-            # break
+            break
         return data
 
     """
@@ -126,7 +126,7 @@ class EDX(WebsiteInterface):
 
     def add_details_panel(self, course, soup):
         course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})),
-                                             'Languages')
+                                             ['Languages', 'Language'])
         course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
         course.typical_learning_time = self.field_cleanup(
             save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
@@ -150,14 +150,14 @@ class EDX(WebsiteInterface):
         soup = self.get_expanded_soup(url)
         if provider is None:
             provider = Provider()
-            page_title = soup.find('h1', attrs={'id': 'page-title'})
-            try:
-                subtitle = save_get_text(page_title.find('span', attrs={'class': 'subtitle'}))
-                page_title = save_get_text(page_title).replace(subtitle, '').strip()
-            except AttributeError:
-                page_title = save_get_text(page_title)
-            provider.id = page_title
-            provider.name = page_title
+        page_title = soup.find('h1', attrs={'id': 'page-title'})
+        try:
+            subtitle = save_get_text(page_title.find('span', attrs={'class': 'subtitle'}))
+            page_title = save_get_text(page_title).replace(subtitle, '').strip()
+        except AttributeError:
+            page_title = save_get_text(page_title)
+        provider.id = page_title
+        provider.name = page_title
         provider.description = save_get_text(soup.find('div', attrs={'id': 'block-system-main', 'class': 'block'}))
         provider.url = url
         return provider
@@ -182,13 +182,15 @@ class EDX(WebsiteInterface):
         course.subtitle = save_get_text(soup.find('p', attrs={'class': 'banner-description'}))
         overview_div = soup.find('div', attrs={'class': 'overview'})
         try:
-            course.description = '\n'.join([save_get_text(p) for p in
-                                            overview_div.find('div', attrs={
-                                                'class': 'see-more-content'}).findAll('p')])
+            course.description = '\n'.join(filter(lambda x: x != '', [save_get_text(p) for p in
+                                                                      overview_div.find('div', attrs={
+                                                                          'class': 'see-more-content'}).findAll('p')]))
         except AttributeError:
             pass
         try:
-            course.objectives = '\n'.join([save_get_text(li) for li in overview_div.find_next_sibling('div').findAll('li')])
+            course.objectives = '\n'.join(filter(lambda x: x != '', [save_get_text(li) for li in
+                                                                     overview_div.find_next_sibling('div').findAll(
+                                                                         'li')]))
         except AttributeError:
             pass
 
@@ -213,7 +215,7 @@ class EDX(WebsiteInterface):
         if isinstance(split_name, str):
             split_name = [split_name]
         for s in split_name:
-            text = text.strip().split(s)[pos].strip(':').strip()
+            text = text.strip().split(s)[pos].strip(':').strip().strip('\n')
         return text
 
     def get_instructors(self, soup, course, verbose=0):
@@ -246,21 +248,6 @@ class EDX(WebsiteInterface):
             updates = False
             if instructor in self.instructors:
                 instructor = self.instructors[instructor]
-            else:
-                updates = True
-
-            if instructor.job_title == '' or len(instructor.works_for) == 0:
-                position = i.find('p', attrs={'class': 'instructor-position'})
-                try:
-                    org = save_get_text(position.find('span', attrs={'class': 'instructor-org'})).strip()
-                except AttributeError:
-                    org = ''
-                position = save_get_text(position).replace(org, '').strip()
-                instructor.job_title = position
-                if org != '':
-                    instructor.works_for.add(org)
-
-                updates = True
 
             if course not in instructor.teaches:
                 instructor.teaches.add(course)
@@ -275,6 +262,7 @@ class EDX(WebsiteInterface):
                     bio.bio, bio_soup = self.get_bio(bio_url, return_soup=True)
                     if bio:
                         instructor.biography.add(bio)
+                        # print('add bio to instructor', instructor.id, bio_url)
                         if verbose:
                             print('-' * 80)
                             print('new bio for instructor')
@@ -290,19 +278,31 @@ class EDX(WebsiteInterface):
                             bio_worksfor = bio_soup.find('li', attrs={'class': 'org-name'})
                             try:
                                 worksfor_link = bio_worksfor.find('a')['href']
-                                if worksfor_link:
+                                if worksfor_link != '':
                                     provider = self.get_provider(worksfor_link)
                                     try:
                                         provider = self.providers[provider]
                                     except KeyError:
                                         self.providers[provider] = provider
-                                    instructor.works_for = provider
+                                    instructor.works_for.add(provider)
                             except (AttributeError, TypeError):
                                 worksfor_link = ''
                             if worksfor_link == '':
                                 instructor.works_for = save_get_text(bio_worksfor)
                         except AttributeError:
                             pass
+
+            if instructor.job_title == '' or len(instructor.works_for) == 0:
+                position = i.find('p', attrs={'class': 'instructor-position'})
+                try:
+                    org = save_get_text(position.find('span', attrs={'class': 'instructor-org'})).strip()
+                except AttributeError:
+                    org = ''
+                position = save_get_text(position).replace(org, '').strip()
+                if instructor.job_title == '':
+                    instructor.job_title = position
+                if org != '' and len(instructor.works_for) == 0:
+                    instructor.works_for.add(org)
 
             if updates:
                 self.instructors[instructor] = instructor

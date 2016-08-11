@@ -72,6 +72,9 @@ class Provider(object):
     def __bool__(self):
         return self.id != ''
 
+    def __len__(self):
+        return 1 if self.id != '' else 0
+
     def __nonzero__(self):
         return self.__bool__()
 

@@ -113,7 +113,7 @@ def click_buttons(sess, xpath, verbose=0):
 
 def save_get_text(soup, blank_value=''):
     try:
-        return soup.getText(separator=u' ').strip().strip('\n')
+        return soup.getText(separator=' ').strip().strip('\n')
     except AttributeError:
         return blank_value
 
