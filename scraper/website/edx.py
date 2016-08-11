@@ -39,7 +39,7 @@ class EDX(WebsiteInterface):
     def scrape_overview(self, url):
         course_links = self.harvest_course_links(url)
         data = set()
-        print('EDX: Scrape course info of xseries...')
+        print('EDX: Scrape info of xseries...')
         for l in tqdm(list(filter(lambda x: 'www.edx.org/xseries/' in x, course_links))):
             try:
                 xs = self.get_series_info(l)
@@ -57,7 +57,7 @@ class EDX(WebsiteInterface):
                 print(traceback.format_exc())
             # break
 
-        print('EDX: Scrape course info of courses...')
+        print('EDX: Scrape info of courses...')
         for l in tqdm(list(filter(lambda x: 'www.edx.org/course/' in x, course_links))):
             try:
                 c = self.get_course_info(l)
