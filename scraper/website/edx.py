@@ -97,12 +97,21 @@ class EDX(WebsiteInterface):
         course.title = save_get_text(soup.find('h1', attrs={'class': 'course-intro-heading'}))
         course.subtitle = save_get_text(soup.find('p', attrs={'class': 'course-intro-lead-in'}))
         course.rating = save_get_text(soup.find('span', attrs={'class': 'ct-widget-stars__rating-stat'}))
-        course.description = save_get_text(soup.find('div', attrs={'class': 'course-description'}).find('div'))
+        try:
+            course.description = save_get_text(soup.find('div', attrs={'class': 'course-description'}).find('div'))
+        except AttributeError:
+            pass
         course.objectives = save_get_text(soup.find('div', attrs={'class': 'course-info-list wysiwyg-content'}))
         course.syllabus = save_get_text(soup.find('div', attrs={'class': 'syllabus-content'}))
-        course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
-            'Prerequisites', 1)[-1].strip().strip(':').strip()
-        course.available = self.field_cleanup(save_get_text(soup.find('div', attrs={'class': 'course-start'}).parent), 'Enroll Now', pos=0)
+        try:
+            course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
+                'Prerequisites', 1)[-1].strip().strip(':').strip()
+        except AttributeError:
+            pass
+        try:
+            course.available = self.field_cleanup(save_get_text(soup.find('div', attrs={'class': 'course-start'}).parent), 'Enroll Now', pos=0)
+        except AttributeError:
+            pass
         # details
 
         course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), 'Languages')
@@ -130,11 +139,16 @@ class EDX(WebsiteInterface):
         course.title = save_get_text(soup.find('div', attrs={'class': 'org-label'}).find_next('h1'))
         course.subtitle = save_get_text(soup.find('p', attrs={'class': 'banner-description'}))
         overview_div = soup.find('div', attrs={'class': 'overview'})
-        course.description = '\n'.join([save_get_text(p) for p in
-                                        overview_div.find('div', attrs={
-                                            'class': 'see-more-content'}).findAll('p')])
-
-        course.objectives = '\n'.join([save_get_text(li) for li in overview_div.find_next_sibling('div').findAll('li')])
+        try:
+            course.description = '\n'.join([save_get_text(p) for p in
+                                            overview_div.find('div', attrs={
+                                                'class': 'see-more-content'}).findAll('p')])
+        except AttributeError:
+            pass
+        try:
+            course.objectives = '\n'.join([save_get_text(li) for li in overview_div.find_next_sibling('div').findAll('li')])
+        except AttributeError:
+            pass
 
         # course.rating = save_get_text(soup.find('span', attrs={'class': 'ct-widget-stars__rating-stat'}))
 
@@ -153,9 +167,15 @@ class EDX(WebsiteInterface):
         course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
         # instructors = self.get_instructors(soup, course, verbose=verbose)
         # course.is_teacher.update(instructors)
-        for card in soup.find('section', attrs={'id': 'courses'}).findAll('div', attrs={'class': 'discovery-card'}):
-            card_url = self.base_url + card.find('a')['href']
-            course.courses.append(card_url)
+        try:
+            for card in soup.find('section', attrs={'id': 'courses'}).findAll('div', attrs={'class': 'discovery-card'}):
+                try:
+                    card_url = self.base_url + card.find('a')['href']
+                    course.courses.append(card_url)
+                except AttributeError:
+                    pass
+        except AttributeError:
+            pass
         if verbose:
             course.print_info()
         return course
@@ -172,7 +192,10 @@ class EDX(WebsiteInterface):
         instructors = set()
         for i in soup.findAll('li', attrs={'class': 'list-instructor__item'}):
             instructor = Instructor()
-            name = i.find('p', attrs={'class': 'instructor-name'})
+            try:
+                name = i.find('p', attrs={'class': 'instructor-name'})
+            except AttributeError:
+                continue
             try:
                 bio_url = self.base_url + name.parent['href']
             except AttributeError:
@@ -244,7 +267,10 @@ class EDX(WebsiteInterface):
     @staticmethod
     def get_bio(url, verbose=0):
         soup = get_soup(url, js=True, verbose=verbose)
-        return save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
+        try:
+            return save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
+        except AttributeError:
+            return ''
 
     def scrape_bio(self, url, verbose=0):
         b = Bio()
