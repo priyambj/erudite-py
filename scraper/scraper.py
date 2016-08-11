@@ -79,20 +79,23 @@ class Scraper:
                         table_name = 'instructor'
                         columns_dict[table_name] = i.db_fields
                         data_dict[table_name].append(extract_data(i, i.db_fields))
+
                         for b in i.biography:
-                            table_name = 'has_bio'
-                            columns_dict[table_name] = b.db_fields
-                            data_dict[table_name].append(extract_data(b, b.db_fields))
+                            if b:
+                                table_name = 'has_bio'
+                                columns_dict[table_name] = b.db_fields
+                                data_dict[table_name].append(extract_data(b, b.db_fields))
                         table_name = 'works_for'
                         columns_dict[table_name] = ['instructor_id', 'provider_id', 'department']
                         works_for = i.works_for
-                        if isinstance(works_for, basestring):
-                            data_dict[table_name].append([i.id, works_for, ''])
-                        elif isinstance(works_for, Provider):
-                            data_dict[table_name].append([i.id, works_for.id, ''])
-                        else:
-                            for w in i.works_for:
-                                data_dict[table_name].append([i.id, w, ''])
+                        if works_for:
+                            if isinstance(works_for, basestring):
+                                data_dict[table_name].append([i.id, works_for, ''])
+                            elif isinstance(works_for, Provider):
+                                data_dict[table_name].append([i.id, works_for.id, ''])
+                            else:
+                                for w in i.works_for:
+                                    data_dict[table_name].append([i.id, w, ''])
                     table_name = 'teaches'
                     columns_dict[table_name] = ['instructor_id', 'resource_id']
                     data_dict[table_name].append([i.id, d.id])

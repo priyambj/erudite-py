@@ -278,7 +278,7 @@ class EDX(WebsiteInterface):
                             print('-' * 80)
                         updates = True
                         try:
-                            bio_jobtitle = save_get_text(bio_soup.find('ul', attrs={'class': 'org-roles'}))
+                            bio_jobtitle = save_get_text(bio_soup.find('ul', attrs={'class': 'org-roles'}).find('li'))
                             instructor.job_title = max([bio_jobtitle, instructor.job_title], key=len)
                         except AttributeError:
                             pass

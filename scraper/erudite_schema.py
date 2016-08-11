@@ -179,7 +179,7 @@ class Bio:
         pprint(vars(self))
 
     def __bool__(self):
-        return self.bio != ''
+        return self.bio != '' and len(self.bio) > 10
 
 
 class Tag:

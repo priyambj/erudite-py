@@ -3,6 +3,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import datetime
 import sys
+import re
 
 
 def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
@@ -73,6 +74,8 @@ def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5, ver
 
 def get_rq_page(url, wait=5, return_session=True, verbose=0):
     import requests
+
+    url = re.findall(u'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url)[-1]
 
     session = requests.Session()
     session.mount("http://", requests.adapters.HTTPAdapter())
