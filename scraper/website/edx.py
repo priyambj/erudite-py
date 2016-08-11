@@ -49,7 +49,7 @@ class EDX(WebsiteInterface):
                         print('add course from xseries:', cl, '\n')
                     course_links.add(cl)
                 data.add(xs)
-                break
+                # break
             except KeyboardInterrupt:
                 break
             except:
@@ -61,7 +61,7 @@ class EDX(WebsiteInterface):
             try:
                 c = self.get_course_info(l)
                 data.add(c)
-                break
+                # break
             except KeyboardInterrupt:
                 break
             except:
