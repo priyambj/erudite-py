@@ -1,7 +1,8 @@
 from pprint import pprint
+from utils import extract_url
 
 
-class Provider:
+class Provider(object):
     """
      A Provider is an organization that generates and supports a LearningResource.
 
@@ -58,7 +59,15 @@ class Provider:
         """
          A URL where the provider is found online
         """
-        self.url = ''
+        self._url = ''
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
 
     def __bool__(self):
         return self.id != ''
@@ -76,7 +85,7 @@ class Provider:
         return self.id
 
 
-class Instructor:
+class Instructor(object):
     """
      An Instructor is an individual who facilitates the delivery of
      a LearningResource to students.
@@ -143,7 +152,7 @@ class Instructor:
         return self.__bool__()
 
 
-class Bio:
+class Bio(object):
     """
      The biography of the instructor
     """
@@ -158,7 +167,7 @@ class Bio:
         """
          Url of the biography
         """
-        self.id = ''
+        self._id = ''
 
         """
          The biography itself.
@@ -173,7 +182,25 @@ class Bio:
         """
          Url of the biography
         """
-        self.url = ''
+        self._url = ''
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
+        self._id = self._url
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, url):
+        self._id = extract_url(url)
+        self._url = self._id
 
     def __init__(self):
         pass
@@ -191,7 +218,7 @@ class Bio:
         return self.__bool__()
 
 
-class Tag:
+class Tag(object):
     """
      Tags are designated as ontological labels associated with Learning
      Resources.
@@ -225,7 +252,7 @@ class Tag:
         return self.__bool__()
 
 
-class LearningResource:
+class LearningResource(object):
     """
      A learning resource could be an MOOC course or program, a university
      course or program, a tutorial document, a textbook or any other
@@ -276,7 +303,7 @@ class LearningResource:
         """
          A URL where the resource is found online
         """
-        self.url = ''
+        self._url = ''
 
         """
          The stem of the URL where this resource may be found within the
@@ -378,6 +405,14 @@ class LearningResource:
          Provider instances of the provider (see class Provider)
         """
         self.provider = Provider()
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
 
     def __hash__(self):
         return hash(self.id)

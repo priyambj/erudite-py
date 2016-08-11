@@ -14,7 +14,7 @@ urls = ['none',
 df_dict = scraper.scrape(urls)
 for key, val in df_dict.items():
     # print(val.head(2))
-    val.to_csv(key + '.csv', encoding='utf-8')
+    val.to_csv(key + '.csv', encoding='utf-8', index=False)
 
 # please ignore the KeyError on exit - it is a bug in one of the used libraries. I've already submitted a pull request
 # to fix this bug.

@@ -7,6 +7,7 @@ import re
 
 
 def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
+    url = extract_url(url)
     if js:
         session = get_js_session(url, verbose=verbose)
         content = session.body()
@@ -22,6 +23,7 @@ def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
 
 
 def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0):
+    url = extract_url(url)
     import dryscrape
 
     if 'linux' in sys.platform:
@@ -72,11 +74,16 @@ def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5, ver
     return c == 0
 
 
-def extract_url(url):
+def extract_url(url, verbose=0):
     o_url = url
     url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url)[-1]
-    if o_url != url:
-        print('extracted', url, ' FROM ', o_url)
+    url = list(filter(lambda x: len(x) > 0, re.split('(http[s]?://)', url)))
+    if len(url) > 1:
+        if '://' in url[-2] and '://' not in url[-1]:
+            url = ''.join(url[-2:])
+        else:
+            url = url[-1]
+    v_print(verbose and o_url != url, 'extracted', url, ' FROM ', o_url)
     return url
 
 
@@ -128,7 +135,13 @@ def extract_data(obj, fields, blank_value=''):
     obj_vars = vars(obj)
     for f in fields:
         try:
-            val = obj_vars[f]
+            try:
+                val = obj_vars[f]
+            except KeyError:
+                try:
+                    val = obj_vars['_' + f]  # access hidden var
+                except KeyError:
+                    val = obj_vars['__' + f]  # access hidden var
             if isinstance(val, (tuple, list, set)):
                 val = list(filter(lambda x: x is not None and x != '', val))
                 if len(val) > 0:

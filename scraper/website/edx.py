@@ -154,6 +154,7 @@ class EDX(WebsiteInterface):
             except AttributeError:
                 page_title = save_get_text(page_title)
             provider.id = page_title
+            provider.name = page_title
         provider.description = save_get_text(soup.find('div', attrs={'id': 'block-system-main', 'class': 'block'}))
         provider.url = url
         return provider
