@@ -14,7 +14,8 @@ from sympy.tensor.indexed import Idx
 class Coursera(WebsiteInterface):
 
     def __init__(self):
-        self.name = 'CourseraScraper'
+        WebsiteInterface.__init__(self)
+        self.name = 'Coursera'
 
     def can_handle(self, url):
         if url == 'https://www.coursera.org/browse/data-science':

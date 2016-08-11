@@ -16,28 +16,45 @@ from idlelib.idle_test.test_helpabout import About
 class EDX(WebsiteInterface):
 
     def __init__(self):
-        self.name = 'EDXScraper'
+        WebsiteInterface.__init__(self)
+        self.name = 'EDX'
         self.base_url = 'https://www.edx.org'
         self.instructors = dict()
 
     def can_handle(self, url):
-        if url.startswith('https://www.edx.org/course/'):
+        if url.startswith('https://www.edx.org'):
             return True
         else:
             return False
 
-    def scrape(self, url, wait=5):
+    def scrape(self, url, verbose=0):
+        url = url.strip('/')
+        if url == 'https://www.edx.org/course' or url == 'https://www.edx.org' or url.startswith('https://www.edx.org/course/subject/'):
+            return self.scrape_overview(url)
+        elif url.startswith('https://www.edx.org/bio/'):
+            return [self.scrape_bio(url)]
+        elif url.startswith('https://www.edx.org/course/'):
+            return [self.get_course_info(url, verbose=verbose)]
+        elif url.startswith('https://www.edx.org/xseries/'):
+            return [self.get_series_info(url, verbose=verbose)]
+        else:
+            print(self.name, ": Don't know how to handle", url)
+
+    def scrape_overview(self, url):
         course_links = self.harvest_course_links(url)
         data = set()
         print('EDX: Scrape course info of xseries...')
-        for l in tqdm(list(filter(lambda x: x.startswith('https://www.edx.org/xseries/', course_links)))):
+        for l in tqdm(list(filter(lambda x: x.startswith('https://www.edx.org/xseries/'), course_links))):
             try:
                 xs = self.get_series_info(l)
 
                 # get courses of series to crawl them in the next step
                 for cl in xs.courses:
+                    if cl not in course_links:
+                        print('add course from xseries:', cl, '\n')
                     course_links.add(cl)
                 data.add(xs)
+                break
             except KeyboardInterrupt:
                 break
             except:
@@ -45,10 +62,11 @@ class EDX(WebsiteInterface):
                 print(traceback.format_exc())
 
         print('EDX: Scrape course info of courses...')
-        for l in tqdm(list(filter(lambda x: not x.startswith('https://www.edx.org/xseries/', course_links)))):
+        for l in tqdm(list(filter(lambda x: not x.startswith('https://www.edx.org/xseries/'), course_links))):
             try:
                 c = self.get_course_info(l)
                 data.add(c)
+                break
             except KeyboardInterrupt:
                 break
             except:
@@ -95,11 +113,11 @@ class EDX(WebsiteInterface):
         course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), 'Languages')
         course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
         course.typical_learning_time = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
-        course.education_level = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
+        course.difficulty = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
         course.venue = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'school'})), 'Institution')
         course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
         instructors = self.get_instructors(soup, course, verbose=verbose)
-        course.is_teacher.update(instructors)
+        course.instructors.update(instructors)
         if verbose:
             course.print_info()
         return course
@@ -127,20 +145,20 @@ class EDX(WebsiteInterface):
 
 
         # course.syllabus = save_get_text(soup.find('div', attrs={'class': 'syllabus-content'}))
-        course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
-            'Prerequisites', 1)[-1].strip().strip(':').strip()
+        # course.prerequisite = save_get_text(soup.find('h2', attrs={'class': 'course-info-heading reg'}).parent).split(
+        #    'Prerequisites', 1)[-1].strip().strip(':').strip()
         # course.available = self.field_cleanup(save_get_text(soup.find('div', attrs={'class': 'course-start'}).parent), 'Enroll Now', pos=0)
 
         # details
-        course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), 'Languages')
+        course.language = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'language'})), ['Languages', 'Language'])
         course.length = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'length'})), 'Length')
         course.typical_learning_time = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'effort'})), 'Effort')
-        course.education_level = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
+        course.difficulty = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'level'})), 'Level')
         course.venue = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'school'})), 'Institution')
         course.price = self.field_cleanup(save_get_text(soup.find('li', attrs={'data-field': 'price'})), 'Price')
         # instructors = self.get_instructors(soup, course, verbose=verbose)
         # course.is_teacher.update(instructors)
-        for card in soup.find('section', attrs={'class': 'courses'}).findAll('div', attrs={'class': 'discovery-card'}):
+        for card in soup.find('section', attrs={'id': 'courses'}).findAll('div', attrs={'class': 'discovery-card'}):
             card_url = self.base_url + card.find('a')['href']
             course.courses.append(card_url)
         if verbose:
@@ -149,7 +167,11 @@ class EDX(WebsiteInterface):
 
     @staticmethod
     def field_cleanup(text, split_name, pos=-1):
-        return text.strip().split(split_name)[pos].strip(':').strip()
+        if isinstance(split_name, str):
+            split_name = [split_name]
+        for s in split_name:
+            text = text.strip().split(s)[pos].strip(':').strip()
+        return text
 
     def get_instructors(self, soup, course, verbose=0):
         instructors = set()
@@ -189,7 +211,7 @@ class EDX(WebsiteInterface):
                     org = ''
                 position = save_get_text(position).replace(org, '').strip()
                 instructor.job_title = position
-                instructor.works_for = org
+                instructor.works_for.add(org)
                 updates = True
 
             if course not in instructor.teaches:
@@ -199,10 +221,10 @@ class EDX(WebsiteInterface):
             if bio_url != '':
                 bio = Bio()
                 bio.url = bio_url
-                if bio not in instructor.has_bio:
-                    bio.bio_owner = instructor
-                    #TODO: crawl bio
-                    instructor.has_bio.add(bio)
+                if bio not in instructor.biography:
+                    bio.instructor_id = instructor.id
+                    bio.bio = self.get_bio(bio_url)
+                    instructor.biography.add(bio)
                     if verbose:
                         print('-' * 80)
                         print('new bio for instructor')
@@ -220,6 +242,18 @@ class EDX(WebsiteInterface):
             instructors.add(instructor)
         return instructors
 
+    @staticmethod
+    def get_bio(url, verbose=0):
+        soup = get_soup(url, js=True, verbose=verbose)
+        return save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
+
+    def scrape_bio(self, url, verbose=0):
+        b = Bio()
+        b.url = url
+        b.id = url
+        b.bio = self.get_bio(url, verbose=verbose)
+        # Maybe also create and add Instructor....
+        return b
 
     """
     Continuously scroll to the bottom of the page for a full minute,

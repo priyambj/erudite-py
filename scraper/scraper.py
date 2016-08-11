@@ -2,19 +2,18 @@ from __future__ import print_function
 from website.website_interface import WebsiteInterface
 # from joblib import delayed, Parallel
 import traceback
-import numpy as np
 import pandas as pd
 from collections import defaultdict
 from operator import itemgetter
+from erudite_schema import *
+from utils import extract_data
+from tqdm import tqdm
 
 
 class Scraper:
-    def __init__(self, fields_of_interest=None):
+    def __init__(self):
         self.website_scrapers = dict()
-        if fields_of_interest is None:
-            self.fields_of_interest = []
-        else:
-            self.fields_of_interest = fields_of_interest
+        self.fails = defaultdict(list)
 
     def register_website(self, ws):
         if not isinstance(ws, WebsiteInterface):
@@ -25,11 +24,10 @@ class Scraper:
                 print('WARN: overwrite existing scraper.')
             self.website_scrapers[website_name] = ws
 
-    def scrape(self, url, wait=5):
+    def scrape(self, url):
         if isinstance(url, str):
             url = [url]
         data = list()
-        fails = defaultdict(int)
         for u in url:
             try:
                 s_name, s = self.find_scraper(u)
@@ -38,36 +36,89 @@ class Scraper:
 
             try:
                 print(s_name, 'scraping', u, '...')
-                d = s.scrape(u, wait)
+                d = s.scrape(u)
                 if isinstance(d, dict):
                     d = [d]
                 for i in d:
-                    i['scraper'] = s_name
+                    i.venue = s_name
                 data.extend(d)
             except:
                 # protection if any scraper fails...
                 print(s_name, 'failed to handle "', u, '"')
-                fails[s_name] += 1
+                self.fails[s_name].append(u)
                 print(traceback.format_exc())
 
-        df_data = list()
-        unused_fields = set()
-        for course in data:
-            course_data = list()
-            for f in self.fields_of_interest:
-                try:
-                    course_data.append(course[f])
-                except KeyError:
-                    course_data.append(np.nan)
-            unused_fields.update(set(course.keys()) - set(self.fields_of_interest))
-            df_data.append(tuple(course_data))
-        if unused_fields:
-            print('ignored the following fields:', ', '.join(sorted(unused_fields)))
-        if len(fails) > 0:
+        data_dict = defaultdict(list)
+        columns_dict = defaultdict(None)
+
+        print('extract data for database...')
+        added_instructors = set()
+        for d in tqdm(data):
+            if isinstance(d, LearningResource):
+                table_name = 'learning_resource'
+                data_dict[table_name].append(extract_data(d, d.db_fields))
+                columns_dict[table_name] = d.db_fields
+                for c in d.courses:
+                    table_name = 'part_of'
+                    data_dict[table_name].append([c, d.id])
+                    columns_dict[table_name] = ['child_resource_id', 'parent_resource_id']
+                prereq = d.prerequisite
+                if prereq is not None:
+                    table_name = 'prerequisite'
+                    columns_dict[table_name] = ['resource_id', 'prerequisite_id', 'prerequisite_concept']
+                    if isinstance(prereq, basestring):
+                        data_dict[table_name].append([d.id, '', prereq])
+                    else:
+                        for p in prereq:
+                            data_dict[table_name].append([d.id, '', p])
+                for i in d.instructors:
+                    if i not in added_instructors:
+                        added_instructors.add(i)
+                        table_name = 'instructor'
+                        columns_dict[table_name] = i.db_fields
+                        data_dict[table_name].append(extract_data(i, i.db_fields))
+                        for b in i.biography:
+                            table_name = 'has_bio'
+                            columns_dict[table_name] = b.db_fields
+                            data_dict[table_name].append(extract_data(b, b.db_fields))
+                        table_name = 'works_for'
+                        columns_dict[table_name] = ['instructor_id', 'provider_id', 'department']
+                        works_for = i.works_for
+                        if isinstance(works_for, basestring):
+                            data_dict[table_name].append([i.id, works_for, ''])
+                        else:
+                            for w in i.works_for:
+                                data_dict[table_name].append([i.id, w, ''])
+                    table_name = 'teaches'
+                    columns_dict[table_name] = ['instructor_id', 'resource_id']
+                    data_dict[table_name].append([i.id, d.id])
+                table_name = 'provides'
+                columns_dict[table_name] = ['provider_id', 'resource_id']
+                data_dict[table_name].append([d.venue, d.id])
+
+            elif isinstance(d, Instructor):
+                if i not in added_instructors:
+                    added_instructors.add(i)
+                    table_name = 'instructor'
+                    columns_dict[table_name] = i.db_fields
+                    data_dict[table_name].append(extract_data(i, i.db_fields))
+            elif isinstance(d, Bio):
+                pass
+            else:
+                print("can't handle the following instance retrieved from scraper:", d)
+            print('-' * 80)
+
+        if len(self.fails) > 0:
             print('statistics of scraper fails:')
-            for n, f in sorted(fails.items(), key=itemgetter(1), reverse=True):
-                print('\t', n, ':', f)
-        return pd.DataFrame(columns=self.fields_of_interest, data=df_data)
+            for n, f in sorted(self.fails.items(), key=itemgetter(1), reverse=True):
+                print('\t', n, ':', len(f))
+        df_dict = dict()
+        print('create dataframes')
+        for key, val in data_dict.items():
+            print(key)
+            col_names = columns_dict[key]
+            df_dict[key] = pd.DataFrame(columns=col_names, data=val)
+        return df_dict
 
     def find_scraper(self, url):
         for name, ws in self.website_scrapers.items():

@@ -111,3 +111,15 @@ def render_js_sess(sess, fn):
         fn = str(fn)
         if not fn.endswith('.png'): fn += '.png'
         sess.render(fn + ".png")
+
+
+def extract_data(obj, fields, blank_value=''):
+    d = list()
+    obj_vars = vars(obj)
+    for f in fields:
+        try:
+            val = obj_vars[f]
+        except KeyError:
+            val = blank_value
+        d.append(val)
+    return d

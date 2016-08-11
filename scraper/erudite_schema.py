@@ -102,11 +102,13 @@ class Instructor:
     """
     job_title = ''
 
-    has_bio = set()
+    biography = set()
 
     works_for = set()
 
     teaches = set()
+
+    db_fields = ['id', 'first_name', 'middle_name', 'last_name', 'full_name', 'short_name', 'job_title', 'works_for']
 
     def __init__(self):
         pass
@@ -136,12 +138,14 @@ class Bio:
     """
      Owner of the biography.
     """
-    bio_owner = Instructor()
+    instructor_id = ''
 
     """
      Url of the biography
     """
     url = ''
+
+    db_fields = ['instructor_id', 'bio']
 
     def __init__(self):
         pass
@@ -237,7 +241,7 @@ class LearningResource:
     """
      The education level needed to study this resource.
     """
-    education_level = ''
+    difficulty = ''
 
     """
      When was this resource created?
@@ -308,7 +312,7 @@ class LearningResource:
 
     venue = ''
 
-    is_teacher = set()
+    instructors = set()
 
     has_tag = set()
 
@@ -318,6 +322,10 @@ class LearningResource:
 
     length = ''
 
+    db_fields = ['id', 'title', 'subtitle', 'description', 'short_description', 'syllabus',
+                 'url', 'slug', 'difficulty', 'created', 'date_modified', 'end_date', 'typical_learning_time',
+                 'rating', 'price', 'new', 'language', 'format', 'license', 'venue']
+
     def __init__(self):
         pass
 
@@ -326,3 +334,7 @@ class LearningResource:
 
     def print_info(self):
         pprint(vars(self))
+
+
+
+
