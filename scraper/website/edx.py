@@ -3,14 +3,9 @@ from scraper.erudite_schema import *
 from scraper.website.website_interface import WebsiteInterface
 from scraper.utils import *
 from time import sleep
-import json
 from tqdm import tqdm
 import traceback
-from collections import defaultdict
-
 from scraper.erudite_schema import LearningResource
-from statsmodels.regression.tests.test_quantile_regression import idx
-from idlelib.idle_test.test_helpabout import About
 
 
 class EDX(WebsiteInterface):
@@ -44,7 +39,7 @@ class EDX(WebsiteInterface):
         course_links = self.harvest_course_links(url)
         data = set()
         print('EDX: Scrape course info of xseries...')
-        for l in tqdm(list(filter(lambda x: x.startswith('https://www.edx.org/xseries/'), course_links))):
+        for l in tqdm(list(filter(lambda x: 'www.edx.org/xseries/' in x, course_links))):
             try:
                 xs = self.get_series_info(l)
 
@@ -62,7 +57,7 @@ class EDX(WebsiteInterface):
                 print(traceback.format_exc())
 
         print('EDX: Scrape course info of courses...')
-        for l in tqdm(list(filter(lambda x: not x.startswith('https://www.edx.org/xseries/'), course_links))):
+        for l in tqdm(list(filter(lambda x: 'www.edx.org/course/' in x, course_links))):
             try:
                 c = self.get_course_info(l)
                 data.add(c)
@@ -203,7 +198,7 @@ class EDX(WebsiteInterface):
             else:
                 updates = True
 
-            if instructor.job_title == '' or instructor.works_for == '':
+            if instructor.job_title == '' or len(instructor.works_for) == 0:
                 position = i.find('p', attrs={'class': 'instructor-position'})
                 try:
                     org = save_get_text(position.find('span', attrs={'class': 'instructor-org'})).strip()
@@ -211,7 +206,9 @@ class EDX(WebsiteInterface):
                     org = ''
                 position = save_get_text(position).replace(org, '').strip()
                 instructor.job_title = position
-                instructor.works_for.add(org)
+                if org != '':
+                    instructor.works_for.add(org)
+
                 updates = True
 
             if course not in instructor.teaches:
@@ -221,16 +218,18 @@ class EDX(WebsiteInterface):
             if bio_url != '':
                 bio = Bio()
                 bio.url = bio_url
+                bio.id = bio.url
                 if bio not in instructor.biography:
                     bio.instructor_id = instructor.id
                     bio.bio = self.get_bio(bio_url)
-                    instructor.biography.add(bio)
-                    if verbose:
-                        print('-' * 80)
-                        print('new bio for instructor')
-                        print(bio.print_info())
-                        print('-' * 80)
-                    updates = True
+                    if bio.bio != '':
+                        instructor.biography.add(bio)
+                        if verbose:
+                            print('-' * 80)
+                            print('new bio for instructor')
+                            print(bio.print_info())
+                            print('-' * 80)
+                        updates = True
 
             if updates:
                 self.instructors[instructor] = instructor

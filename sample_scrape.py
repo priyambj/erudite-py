@@ -13,7 +13,7 @@ urls = ['none',
 
 df_dict = scraper.scrape(urls)
 for key, val in df_dict.items():
-    print(val.head(2))
+    # print(val.head(2))
     val.to_csv(key + '.csv', encoding='utf-8')
 
 

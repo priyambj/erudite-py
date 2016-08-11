@@ -119,6 +119,12 @@ def extract_data(obj, fields, blank_value=''):
     for f in fields:
         try:
             val = obj_vars[f]
+            if isinstance(val, (tuple, list, set)):
+                val = list(filter(lambda x: x is not None and x != '', val))
+                if len(val) > 0:
+                    val = val[0]
+                else:
+                    val = ''
         except KeyError:
             val = blank_value
         d.append(val)

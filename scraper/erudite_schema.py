@@ -7,58 +7,59 @@ class Provider:
 
     """
 
-    """
-     The name of the provider
-    """
-
-    id = ''
-
-    """
-     The name of the provider.
-    """
-    name = ''
-
-    """
-     A description of the provider.
-    """
-    description = ''
-
-    """
-     An alternate name for the provider
-    """
-    alternate_name = ''
-
-    """
-     Which country is the provider located in?
-    """
-    country = ''
-
-    """
-     Which city is the provider located in?
-    """
-    city = ''
-
-    """
-     Which state is the provider located in?
-    """
-    state = ''
-
-    """
-     The latitude of the provider.
-    """
-    latitude = 0.0
-
-    """
-     A URL where the provider is found online
-    """
-    url = ''
-
-    provides = []
-
-    is_worker = []
-
     def __init__(self):
-        pass
+        """
+         Init all members to default values
+        """
+
+        """
+         The name of the provider
+        """
+        self.id = ''
+
+        """
+         The name of the provider.
+        """
+        self.name = ''
+
+        """
+         A description of the provider.
+        """
+        self.description = ''
+
+        """
+         An alternate name for the provider
+        """
+        self.alternate_name = ''
+
+        """
+         Which country is the provider located in?
+        """
+        self.country = ''
+
+        """
+         Which city is the provider located in?
+        """
+        self.city = ''
+
+        """
+         Which state is the provider located in?
+        """
+        self.state = ''
+
+        """
+         The latitude of the provider.
+        """
+        self.latitude = 0.0
+
+        """
+         A URL where the provider is found online
+        """
+        self.url = ''
+
+        self.provides = []
+
+        self.is_worker = []
 
 
 class Instructor:
@@ -67,51 +68,53 @@ class Instructor:
      a LearningResource to students.
     """
 
-    """
-     Full name of the instructor
-    """
-    id = ''
-
-    """
-     First name of the instructor
-    """
-    first_name = ''
-
-    """
-     Middle name of the instructor
-    """
-    middle_name = ''
-
-    """
-     Last name of the instructor
-    """
-    last_name = ''
-
-    """
-     Full name of the instructor
-    """
-    full_name = ''
-
-    """
-     Short name of the instructor
-    """
-    short_name = ''
-
-    """
-     Job title of the instructor
-    """
-    job_title = ''
-
-    biography = set()
-
-    works_for = set()
-
-    teaches = set()
-
     db_fields = ['id', 'first_name', 'middle_name', 'last_name', 'full_name', 'short_name', 'job_title', 'works_for']
 
     def __init__(self):
-        pass
+        """
+         Init all members to default values
+        """
+
+        """
+         Full name of the instructor
+        """
+        self.id = ''
+
+        """
+         First name of the instructor
+        """
+        self.first_name = ''
+
+        """
+         Middle name of the instructor
+        """
+        self.middle_name = ''
+
+        """
+         Last name of the instructor
+        """
+        self.last_name = ''
+
+        """
+         Full name of the instructor
+        """
+        self.full_name = ''
+
+        """
+         Short name of the instructor
+        """
+        self.short_name = ''
+
+        """
+         Job title of the instructor
+        """
+        self.job_title = ''
+
+        self.biography = set()
+
+        self.works_for = set()
+
+        self.teaches = set()
 
     def __hash__(self):
         return hash(self.id)
@@ -125,27 +128,32 @@ class Bio:
      The biography of the instructor
     """
 
-    """
-     Url of the biography
-    """
-    id = ''
-
-    """
-     The biography itself.
-    """
-    bio = ''
-
-    """
-     Owner of the biography.
-    """
-    instructor_id = ''
-
-    """
-     Url of the biography
-    """
-    url = ''
-
     db_fields = ['instructor_id', 'bio']
+
+    def __init__(self):
+        """
+         Init all members to default values
+        """
+
+        """
+         Url of the biography
+        """
+        self.id = ''
+
+        """
+         The biography itself.
+        """
+        self.bio = ''
+
+        """
+         Owner of the biography.
+        """
+        self.instructor_id = ''
+
+        """
+         Url of the biography
+        """
+        self.url = ''
 
     def __init__(self):
         pass
@@ -163,18 +171,20 @@ class Tag:
      Resources.
     """
 
-    """
-     What is the tag?
-    """
-    concept_tag = ''
-
-    """
-     Set of resource ids tagged with this tag.
-    """
-    tagged = set()
-
     def __init__(self):
-        pass
+        """
+         Init all members to default values
+        """
+
+        """
+         What is the tag?
+        """
+        self.concept_tag = ''
+
+        """
+         Set of resource ids tagged with this tag.
+        """
+        self.tagged = set()
 
     def __hash__(self):
         return hash(self.concept_tag)
@@ -191,143 +201,142 @@ class LearningResource:
      in our system.
     """
 
-    """
-     Url of the resource.
-    """
-    id = ''
-
-    """
-     Title of the resource
-    """
-    title = ''
-
-    """
-     Any subtitles that the resource might have
-    """
-    subtitle = ''
-
-    """
-     Discription of the resource (usually a paragraph or two from
-     a course catalog)
-    """
-    description = ''
-
-    """
-     Simple one or two line description of the resource
-    """
-    short_description = ''
-
-    """
-     A description of the contents of the course written in text
-    """
-    syllabus = ''
-
-    """
-     A URL where the resource is found online
-    """
-    url = ''
-
-    """
-     The stem of the URL where this resource may be found within the
-     provider's website
-    """
-    slug = ''
-
-    """
-     A string describing the perquisites of this resource
-    """
-    prerequisite = ''
-
-    """
-     The education level needed to study this resource.
-    """
-    difficulty = ''
-
-    """
-     When was this resource created?
-    """
-    created = ''
-
-    """
-     When was this resource last modified?
-    """
-    date_modified = ''
-
-    """
-     When will this resource be available?
-    """
-    available = ''
-
-    """
-     When will this resource no longer be available?
-    """
-    end_date = ''
-
-    """
-     How long does it typically take for a student to process the
-     material in this resource?
-    """
-    typical_learning_time = ''
-
-    """
-     What is this resource's rating (of quality)
-    """
-    rating = ''
-
-    """
-     What is the cost a student would pay to learn this resource.
-
-    """
-    price = ''
-
-    """
-     Version of the resource
-    """
-    has_version = ''
-
-    """
-     Is this a new course?
-    """
-    new = ''
-
-    """
-     What language is the resource written in?
-    """
-    language = ''
-
-    """
-     What is the format of the resource
-    """
-    format = ''
-
-    """
-     What is the license that covers this resource's usage?
-    """
-    license = ''
-
-    """
-     Ordered Course-ids (urls) of a series, specialization etc.
-    """
-    courses = list()
-
-    venue = ''
-
-    instructors = set()
-
-    has_tag = set()
-
-    provider = set()
-
-    objectives = ''
-
-    length = ''
-
     db_fields = ['id', 'title', 'subtitle', 'description', 'short_description', 'syllabus',
                  'url', 'slug', 'difficulty', 'created', 'date_modified', 'end_date', 'typical_learning_time',
                  'rating', 'price', 'new', 'language', 'format', 'license', 'venue']
 
     def __init__(self):
-        pass
+        """
+         Init all members to default values
+        """
+
+        """
+         Url of the resource.
+        """
+        self.id = ''
+
+        """
+         Title of the resource
+        """
+        self.title = ''
+
+        """
+         Any subtitles that the resource might have
+        """
+        self.subtitle = ''
+
+        """
+         Discription of the resource (usually a paragraph or two from
+         a course catalog)
+        """
+        self.description = ''
+
+        """
+         Simple one or two line description of the resource
+        """
+        self.short_description = ''
+
+        """
+         A description of the contents of the course written in text
+        """
+        self.syllabus = ''
+
+        """
+         A URL where the resource is found online
+        """
+        self.url = ''
+
+        """
+         The stem of the URL where this resource may be found within the
+         provider's website
+        """
+        self.slug = ''
+
+        """
+         A string describing the perquisites of this resource
+        """
+        self.prerequisite = ''
+
+        """
+         The education level needed to study this resource.
+        """
+        self.difficulty = ''
+
+        """
+         When was this resource created?
+        """
+        self.created = ''
+
+        """
+         When was this resource last modified?
+        """
+        self.date_modified = ''
+
+        """
+         When will this resource be available?
+        """
+        self.available = ''
+
+        """
+         When will this resource no longer be available?
+        """
+        self.end_date = ''
+
+        """
+         How long does it typically take for a student to process the
+         material in this resource?
+        """
+        self.typical_learning_time = ''
+
+        """
+         What is this resource's rating (of quality)
+        """
+        self.rating = ''
+
+        """
+         What is the cost a student would pay to learn this resource.
+
+        """
+        self.price = ''
+
+        """
+         Version of the resource
+        """
+        self.has_version = ''
+
+        """
+         Is this a new course?
+        """
+        self.new = ''
+
+        """
+         What language is the resource written in?
+        """
+        self.language = ''
+
+        """
+         What is the format of the resource
+        """
+        self.format = ''
+
+        """
+         What is the license that covers this resource's usage?
+        """
+        self.license = ''
+
+        self.venue = ''
+
+        self.objectives = ''
+
+        self.length = ''
+
+        """
+         Ordered Course-ids (urls) of a series, specialization etc.
+        """
+        self.courses = list()
+        self.instructors = set()
+        self.has_tag = set()
+        self.provider = set()
 
     def __hash__(self):
         return hash(self.id)

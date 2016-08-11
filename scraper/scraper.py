@@ -62,11 +62,12 @@ class Scraper:
                     table_name = 'part_of'
                     data_dict[table_name].append([c, d.id])
                     columns_dict[table_name] = ['child_resource_id', 'parent_resource_id']
+
                 prereq = d.prerequisite
                 if prereq is not None:
                     table_name = 'prerequisite'
                     columns_dict[table_name] = ['resource_id', 'prerequisite_id', 'prerequisite_concept']
-                    if isinstance(prereq, basestring):
+                    if isinstance(prereq, basestring) and prereq != '':
                         data_dict[table_name].append([d.id, '', prereq])
                     else:
                         for p in prereq:
