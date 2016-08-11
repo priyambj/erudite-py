@@ -70,7 +70,7 @@ class Scraper:
                     columns_dict[table_name] = ['resource_id', 'prerequisite_id', 'prerequisite_concept']
                     if isinstance(prereq, basestring) and prereq != '':
                         data_dict[table_name].append([d.id, '', prereq])
-                    else:
+                    elif isinstance(prereq, (tuple, list, set)):
                         for p in prereq:
                             data_dict[table_name].append([d.id, '', p])
                 for i in d.instructors:
@@ -93,8 +93,10 @@ class Scraper:
                                 data_dict[table_name].append([i.id, works_for, ''])
                             elif isinstance(works_for, Provider):
                                 data_dict[table_name].append([i.id, works_for.id, ''])
-                            else:
+                            elif isinstance(works_for, (tuple, set, list)):
                                 for w in i.works_for:
+                                    if isinstance(w, Provider):
+                                        w = w.id
                                     data_dict[table_name].append([i.id, w, ''])
                     table_name = 'teaches'
                     columns_dict[table_name] = ['instructor_id', 'resource_id']

@@ -72,10 +72,17 @@ def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5, ver
     return c == 0
 
 
+def extract_url(url):
+    o_url = url
+    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url)[-1]
+    if o_url != url:
+        print('extracted', url, ' FROM ', o_url)
+    return url
+
+
 def get_rq_page(url, wait=5, return_session=True, verbose=0):
     import requests
-
-    url = re.findall(u'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url)[-1]
+    url = extract_url(url)
 
     session = requests.Session()
     session.mount("http://", requests.adapters.HTTPAdapter())
@@ -99,7 +106,7 @@ def click_buttons(sess, xpath, verbose=0):
 
 def save_get_text(soup, blank_value=''):
     try:
-        return soup.getText(separator=u' ').strip()
+        return soup.getText(separator=u' ').strip().strip('\n')
     except AttributeError:
         return blank_value
 

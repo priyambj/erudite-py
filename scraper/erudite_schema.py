@@ -63,6 +63,9 @@ class Provider:
     def __bool__(self):
         return self.id != ''
 
+    def __nonzero__(self):
+        return self.__bool__()
+
     def __hash__(self):
         return hash(self.id)
 
@@ -136,6 +139,9 @@ class Instructor:
     def __bool__(self):
         return self.id != ''
 
+    def __nonzero__(self):
+        return self.__bool__()
+
 
 class Bio:
     """
@@ -181,6 +187,9 @@ class Bio:
     def __bool__(self):
         return self.bio != '' and len(self.bio) > 10
 
+    def __nonzero__(self):
+        return self.__bool__()
+
 
 class Tag:
     """
@@ -211,6 +220,9 @@ class Tag:
 
     def __bool__(self):
         return self.concept_tag != ''
+
+    def __nonzero__(self):
+        return self.__bool__()
 
 
 class LearningResource:
@@ -375,6 +387,10 @@ class LearningResource:
 
     def __bool__(self):
         return self.id != ''
+
+    def __nonzero__(self):
+        return self.__bool__()
+
 
 
 
