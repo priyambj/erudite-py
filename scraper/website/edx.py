@@ -80,8 +80,11 @@ class EDX(WebsiteInterface):
         soup = BeautifulSoup(sess.body(), "lxml")
         links = set()
         for card in soup.findAll('div', attrs={'class': 'course-card'}):
-            c_link = card.find('a', attrs={'class': 'course-link'})['href']
-            links.add(self.base_url + c_link)
+            try:
+                c_link = card.find('a', attrs={'class': 'course-link'})['href']
+                links.add(self.base_url + c_link)
+            except (AttributeError, TypeError):
+                pass
         print('harvested', len(links), 'links!')
         return links
 
@@ -137,7 +140,7 @@ class EDX(WebsiteInterface):
                 provider_url = self.base_url + soup.find('li', attrs={'data-field': 'school'}).find('a')['href']
                 provider = self.get_provider(provider_url, provider)
                 self.providers[provider] = provider
-            except AttributeError:
+            except (AttributeError, TypeError):
                 pass
 
         course.provider = provider
@@ -197,7 +200,7 @@ class EDX(WebsiteInterface):
                 try:
                     card_url = self.base_url + card.find('a')['href']
                     course.courses.append(card_url)
-                except AttributeError:
+                except (AttributeError, TypeError):
                     pass
         except AttributeError:
             pass
@@ -223,7 +226,7 @@ class EDX(WebsiteInterface):
                 continue
             try:
                 bio_url = self.base_url + name.parent['href']
-            except AttributeError:
+            except (AttributeError, TypeError):
                 bio_url = ''
             name = save_get_text(name).strip()
             instructor.full_name = name
@@ -294,7 +297,7 @@ class EDX(WebsiteInterface):
                                     except KeyError:
                                         self.providers[provider] = provider
                                     instructor.works_for = provider
-                            except AttributeError:
+                            except (AttributeError, TypeError):
                                 worksfor_link = ''
                             if worksfor_link == '':
                                 instructor.works_for = save_get_text(bio_worksfor)
