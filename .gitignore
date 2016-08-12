@@ -97,3 +97,6 @@ coursera/data/
 data
 
 .idea/
+notebooks/*.df
+notebooks/*.zip
+
