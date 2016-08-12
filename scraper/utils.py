@@ -1,17 +1,18 @@
 from __future__ import print_function
 from time import sleep
 from bs4 import BeautifulSoup
-from collections import deque
-
+import datetime
 import sys
+import re
 
 
-def get_soup(url, js=False, wait=5, return_session=False):
+def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
+    url = extract_url(url)
     if js:
-        session = get_js_session(url, wait=wait)
+        session = get_js_session(url, verbose=verbose)
         content = session.body()
     else:
-        page, session = get_rq_page(url, wait=wait, return_session=True)
+        page, session = get_rq_page(url, wait=wait, return_session=True, verbose=verbose)
         content = page.content
 
     soup = BeautifulSoup(content, "lxml")
@@ -21,103 +22,91 @@ def get_soup(url, js=False, wait=5, return_session=False):
         return soup
 
 
-def get_js_session(url, wait=5, viewport=(1024, 768), render_fn=None):
-
+def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0, n_retries=20, retry_sleep=60, new_session=False, reset_session=True):
+    url = extract_url(url)
     import dryscrape
 
-    if 'linux' in sys.platform:
+    if not get_js_session.xvfb_started and 'linux' in sys.platform:
         # start xvfb in case no X is running. Make sure xvfb
         # is installed, otherwise this won't work!
         dryscrape.start_xvfb()
+        get_js_session.xvfb_started = True
+    if new_session or get_js_session.sess is None:
+        sess = dryscrape.Session()
+        get_js_session.sess = sess
+    else:
+        sess = get_js_session.sess
+        if reset_session:
+            sess.reset()
 
-    sess = dryscrape.Session()
     sess.set_viewport_size(width=viewport[0], height=viewport[1])
-    sess.visit(url)
-    
-    #print("loading page from " + url)
-    wait = wait_until_session_stable(sess)
-    #print("Wait " + str(wait) + " seconds")
-    #sleep(wait)
-    
+    for i in range(n_retries):
+        try:
+            sess.visit(url)
+            break
+        except Exception as e:
+            sleep(retry_sleep)
+            if i == (n_retries - 1):
+                raise e
+
+    # print("loading page from " + url)
+    wait_until_session_stable(sess, verbose=verbose)
+    # print("Wait " + str(wait) + " seconds")
+    # sleep(wait)
+
     if render_fn:
         if not render_fn.endswith('.png'):
             render_fn += '.png'
         sess.render(render_fn)
     return sess
 
+get_js_session.xvfb_started = False
+get_js_session.sess = None
+
+
 """
     GULLY: Wait function to hang around until the page returned stabilizes to a 
     set length for a set period of time. This means we don't have to guess 
     about the wait times for loading pages.  
 """
-def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length = 5):
 
-    start_len = len(sess.body())
-    #print("0: " + str(start_len))
 
-    sess_length_queue = deque()
-    for t in time_range(time_res, max_wait, time_res):
-        
-        sleep(time_res)
+def wait_until_session_stable(sess, time_res=1, max_wait=30, queue_length=5, verbose=0):
+    start = datetime.datetime.now()
+    end = start + datetime.timedelta(seconds=max_wait)
+    v_print(verbose, 'chillout', end='')
+    last_len = len(sess.body())
+    c = queue_length
+    while datetime.datetime.now() <= end and c > 0:
         sess_len = len(sess.body())
-        sess_length_queue.append(sess_len)   
-
-        #print( str(t) + ": " + str(sess_len))
-
-        if( len(sess_length_queue) > queue_length ): 
-            sess_length_queue.popleft()  
-        
-        #
-        # If all members of the queue are equal
-        #
-        if( all(x==sess_length_queue[0] for x in sess_length_queue) and 
-            len(sess_length_queue) == queue_length):
-            return t
-    
-    return -1
+        if sess_len == last_len:
+            c -= 1
+            v_print(verbose, '.', end='')
+        else:
+            last_len = sess_len
+            c = queue_length
+            v_print(verbose, '+', end='')
+        sleep(time_res)
+    v_print(verbose)
+    return c == 0
 
 
-"""
-Continuously scroll to the bottom of the page for a full minute, 
-let the page reload and load the data from there.
-"""
-def infinite_scroll_to_bottom(sess, total_scroll_time=60, total_wait_time=20):
+def extract_url(url, verbose=0):
+    o_url = url
+    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url)[-1]
+    url = list(filter(lambda x: len(x) > 0, re.split('(http[s]?://)', url)))
+    if len(url) > 1:
+        if '://' in url[-2] and '://' not in url[-1]:
+            url = ''.join(url[-2:])
+        else:
+            url = url[-1]
+    v_print(verbose and o_url != url, 'extracted', url, ' FROM ', o_url)
+    return url
 
-    last_size = len(sess.body())
-    
-    for t in time_range(0, total_scroll_time, 1):
-        script = "window.scrollBy(0,1000);"
-        sess.exec_script(script)
-        this_size = len(sess.body()) 
-        
-        if( this_size != last_size ):
-            script = "window.scrollTo(0,0);"
-            sess.exec_script(script)
-            sleep(5)
-            last_size = this_size
-            
-        sess.render(str(t) + ".png")
-        sleep(1)
 
-    sleep(total_wait_time)
-
-    wait = wait_until_session_stable(sess,queue_length = total_wait_time)
-    this_size = len(sess.body()) 
-    sess.render(str(total_scroll_time) + ".png")
-#        if( this_size == last_size ) :
-#            break
-#        i += 1
-#       last_size = this_size
-        
-            
-def time_range(start, end, step):
-    while start <= end:
-        yield start
-        start += step
-
-def get_rq_page(url, wait=5, return_session=True):
-
+def get_rq_page(url, wait=5, return_session=True, verbose=0):
     import requests
+    url = extract_url(url)
 
     session = requests.Session()
     session.mount("http://", requests.adapters.HTTPAdapter())
@@ -127,3 +116,58 @@ def get_rq_page(url, wait=5, return_session=True):
         return page, session
     else:
         return page
+
+
+def click_buttons(sess, xpath, verbose=0):
+    for button in sess.xpath(xpath):
+        v_print(verbose, 'click button')
+        try:
+            button.click()
+        except:
+            v_print(verbose, '\tdone')
+            break
+
+
+def save_get_text(soup, blank_value=''):
+    try:
+        return soup.getText(separator=' ').strip().strip('\n')
+    except AttributeError:
+        return blank_value
+
+
+def v_print(v, *args, **kwargs):
+    if v:
+        print(*args, **kwargs)
+
+
+def render_js_sess(sess, fn):
+    if not isinstance(fn, str) or fn != '':
+        fn = str(fn)
+        if not fn.endswith('.png'): fn += '.png'
+        sess.render(fn + ".png")
+
+
+def extract_data(obj, fields, blank_value=''):
+    d = list()
+    obj_vars = vars(obj)
+    for f in fields:
+        try:
+            try:
+                val = obj_vars[f]
+            except KeyError:
+                try:
+                    val = obj_vars['_' + f]  # access hidden var
+                except KeyError:
+                    val = obj_vars['__' + f]  # access hidden var
+            if isinstance(val, (tuple, list, set)):
+                val = list(filter(lambda x: x is not None and x != '', val))
+                if len(val) > 0:
+                    val = val[0]
+                else:
+                    val = ''
+        except KeyError:
+            val = blank_value
+        if not isinstance(val, basestring):
+            val = str(val)
+        d.append(val)
+    return d

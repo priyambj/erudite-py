@@ -1,19 +1,16 @@
-from scraper.field_definitions import Fields
 from scraper.website.website_interface import WebsiteInterface
 from scraper.utils import *
-from time import sleep
 import json
 from tqdm import tqdm
 
 from scraper.erudite_schema import LearningResource
-from statsmodels.regression.tests.test_quantile_regression import idx
-from idlelib.idle_test.test_helpabout import About
-from sympy.tensor.indexed import Idx
+
 
 class Coursera(WebsiteInterface):
 
     def __init__(self):
-        self.name = 'CourseraScraper'
+        WebsiteInterface.__init__(self)
+        self.name = 'Coursera'
 
     def can_handle(self, url):
         if url == 'https://www.coursera.org/browse/data-science':
@@ -33,7 +30,7 @@ class Coursera(WebsiteInterface):
 
     def get_specializations(self, url, wait=5):
     
-        sess = get_js_session(url, wait=wait, viewport=(1024, 768))
+        sess = get_js_session(url, viewport=(1024, 768))
             
         spec_pages = list()
         current_idx = 0
@@ -50,7 +47,7 @@ class Coursera(WebsiteInterface):
                     
                     spec_pages.append(sess.body())
                     current_idx += 1
-                    sess = get_js_session(url, wait=wait, viewport=(1024, 768))
+                    sess = get_js_session(url, viewport=(1024, 768))
                     break
             else:
                 break
@@ -65,11 +62,12 @@ class Coursera(WebsiteInterface):
                     spec_urls.add(url)
         return spec_urls
 
-    def get_specializations_info(self, url, wait=5):
-        sess = get_js_session(url, wait=wait, viewport=(1024, 768))
+    @staticmethod
+    def get_specializations_info(url):
+        sess = get_js_session(url, viewport=(1024, 768))
 
         # expand all syllabus details
-        self.click_buttons(sess, "//div[contains(@class, 'course-show-syllabus-text')]")
+        click_buttons(sess, "//div[contains(@class, 'course-show-syllabus-text')]")
 
         wait = wait_until_session_stable(sess)
         #sleep(wait)
@@ -91,28 +89,15 @@ class Coursera(WebsiteInterface):
             except:
                 syllabus = ''
             
-            c_dict = dict()
-            c_dict[Fields.index] = idx
-            c_dict[Fields.title] = title
-            c_dict[Fields.description] = about
-            c_dict[Fields.syllabus] = syllabus
-            
-            """lr = LearningResource()
-            lr.id = idx
-            lr.title = titles
-            lr.description = About
-            lr.syllabus = syllabus"""
+            course = LearningResource()
+            #course.idx = idx
+            course.title = title
+            course.description = about
+            course.syllabus = syllabus
           
-            data.append(c_dict)
+            data.append(course)
             
         sess.reset()
         return data
 
-    def click_buttons(self, sess, xpath):
-        for button in sess.xpath(xpath):
-            # print('click button')
-            try:
-                button.click()
-            except:
-                # print('\tdone')
-                break
+

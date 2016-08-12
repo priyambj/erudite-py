@@ -2,10 +2,10 @@ FROM ubuntu:16.04
 MAINTAINER Florian Geigl <florian.geigl@gmail.com>
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
-RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates \
+RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
-    git mercurial subversion xvfb curl libqt5webkit5 vim screen
-RUN apt-get update && apt-get upgrade -y && apt-get install -y htop 
+    git mercurial subversion xvfb curl libqt5webkit5 vim screen htop
+RUN apt-get update && apt-get upgrade -y --no-install-recommends
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
 ENV DUSER erudite
@@ -32,7 +32,7 @@ RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
     touch /etc/apt/sources.list.d/graph-tool.list && \
     echo 'deb http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
     echo 'deb-src http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
-    apt-get update && apt-get install -y python-graph-tool && \
+    apt-get update && apt-get install -y --no-install-recommends python-graph-tool && \
     ln -s /usr/lib/python2.7/dist-packages/graph_tool /opt/conda/lib/python2.7/site-packages/graph_tool && \
     apt-get clean && apt-get autoremove
 EXPOSE 8888

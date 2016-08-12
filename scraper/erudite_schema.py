@@ -1,261 +1,435 @@
-"""
- A Provider is an organization that generates and supports a LearningResource. 
- 
-"""
-class Provider:
-	id = ''
-
-	"""
-	 The name of the provider. 
-	"""
-	name = ''
-
-	"""
-	 A description of the provider. 
-	"""
-	description = ''
-
-	"""
-	 An alternate name for the provider 
-	"""
-	alternate_name = ''
-
-	"""
-	 Which country is the provider located in? 
-	"""
-	country = ''
-
-	"""
-	 Which city is the provider located in? 
-	"""
-	city = ''
-
-	"""
-	 Which state is the provider located in? 
-	"""
-	state = ''
-
-	"""
-	 The latitude of the provider. 
-	"""
-	latitude = 0.0
-
-	"""
-	 A URL where the provider is found online 
-	"""
-	url = ''
-
-	provides = []
-
-	is_worker = []
+from pprint import pprint
+from utils import extract_url
 
 
-	def __init__(self):
-		pass
+class Provider(object):
+    """
+     A Provider is an organization that generates and supports a LearningResource.
+
+    """
+
+    db_fields = ['id', 'name', 'description', 'alternate_name', 'city', 'state',
+                 'latitude', 'url']
+
+    def __init__(self):
+        """
+         Init all members to default values
+        """
+
+        """
+         The name of the provider
+        """
+        self.id = ''
+
+        """
+         The name of the provider.
+        """
+        self.name = ''
+
+        """
+         A description of the provider.
+        """
+        self.description = ''
+
+        """
+         An alternate name for the provider
+        """
+        self.alternate_name = ''
+
+        """
+         Which country is the provider located in?
+        """
+        self.country = ''
+
+        """
+         Which city is the provider located in?
+        """
+        self.city = ''
+
+        """
+         Which state is the provider located in?
+        """
+        self.state = ''
+
+        """
+         The latitude of the provider.
+        """
+        self.latitude = ''
+
+        """
+         A URL where the provider is found online
+        """
+        self._url = ''
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
+
+    def __bool__(self):
+        return self.id != ''
+
+    def __len__(self):
+        return 1 if self.id != '' else 0
+
+    def __nonzero__(self):
+        return self.__bool__()
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def print_info(self):
+        pprint(vars(self))
+
+    def __str__(self):
+        return self.id
 
 
-"""
- An Instructor is an individual who facilitates the delivery of 
- a LearningResource to students. 
-"""
-class Instructor:
-	id = ''
+class Instructor(object):
+    """
+     An Instructor is an individual who facilitates the delivery of
+     a LearningResource to students.
+    """
 
-	"""
-	 First name of the instructor 
-	"""
-	first_name = ''
+    db_fields = ['id', 'first_name', 'middle_name', 'last_name', 'full_name', 'short_name', 'job_title', 'works_for']
 
-	"""
-	 Middle name of the instructor 
-	"""
-	middle_name = ''
+    def __init__(self):
+        """
+         Init all members to default values
+        """
 
-	"""
-	 Last name of the instructor 
-	"""
-	last_name = ''
+        """
+         Full name of the instructor
+        """
+        self.id = ''
 
-	"""
-	 Full name of the instructor 
-	"""
-	full_name = ''
+        """
+         First name of the instructor
+        """
+        self.first_name = ''
 
-	"""
-	 Short name of the instructor 
-	"""
-	short_name = ''
+        """
+         Middle name of the instructor
+        """
+        self.middle_name = ''
 
-	"""
-	 Job title of the instructor 
-	"""
-	job_title = ''
+        """
+         Last name of the instructor
+        """
+        self.last_name = ''
 
-	has_bio = []
+        """
+         Full name of the instructor
+        """
+        self.full_name = ''
 
-	works_for = []
+        """
+         Short name of the instructor
+        """
+        self.short_name = ''
 
-	teaches = []
+        """
+         Job title of the instructor
+        """
+        self.job_title = ''
 
+        self.biography = set()
 
-	def __init__(self):
-		pass
+        self.works_for = set()
 
+        self.teaches = set()
 
-class Bio:
-	"""
-	 The biography of the instructor 
-	"""
-	bio = ''
+    def __hash__(self):
+        return hash(self.id)
 
-	bio_owner = Instructor()
+    def print_info(self):
+        pprint(vars(self))
 
-	def __init__(self):
-		pass
+    def __bool__(self):
+        return self.id != ''
 
-"""
- Tags are designated as ontological labels associated with Learning 
- Resources. 
-"""
-class Tag:
-	"""
-	 What is the tag? 
-	"""
-	concept_tag = ''
-
-	tagged = []
+    def __nonzero__(self):
+        return self.__bool__()
 
 
-	def __init__(self):
-		pass
+class Bio(object):
+    """
+     The biography of the instructor
+    """
+
+    db_fields = ['instructor_id', 'bio']
+
+    def __init__(self):
+        """
+         Init all members to default values
+        """
+
+        """
+         Url of the biography
+        """
+        self._id = ''
+
+        """
+         The biography itself.
+        """
+        self.bio = ''
+
+        """
+         Owner of the biography.
+        """
+        self.instructor_id = ''
+
+        """
+         Url of the biography
+        """
+        self._url = ''
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
+        self._id = self._url
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, url):
+        self._id = extract_url(url)
+        self._url = self._id
+
+    def __init__(self):
+        pass
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def print_info(self):
+        pprint(vars(self))
+
+    def __bool__(self):
+        return self.bio != '' and len(self.bio) > 10
+
+    def __nonzero__(self):
+        return self.__bool__()
 
 
-"""
- A learning resource could be an MOOC course or program, a university 
- course or program, a tutorial document, a textbook or any other 
- digital resource that has a pedagogical purpose and is indexed 
- in our system. 
-"""
-class LearningResource:
-	id = ''
+class Tag(object):
+    """
+     Tags are designated as ontological labels associated with Learning
+     Resources.
+    """
 
-	"""
-	 Title of the resource 
-	"""
-	title = ''
+    def __init__(self):
+        """
+         Init all members to default values
+        """
 
-	"""
-	 Any subtitles that the resource might have 
-	"""
-	subtitle = ''
+        """
+         What is the tag?
+        """
+        self.concept_tag = ''
 
-	"""
-	 Discription of the resource (usually a paragraph or two from 
-	 a course catalog) 
-	"""
-	description = ''
+        """
+         Set of resource ids tagged with this tag.
+        """
+        self.tagged = set()
 
-	"""
-	 Simple one or two line description of the resource 
-	"""
-	short_description = ''
+    def __hash__(self):
+        return hash(self.concept_tag)
 
-	"""
-	 A description of the contents of the course written in text 
-	"""
-	syllabus = ''
+    def print_info(self):
+        pprint(vars(self))
 
-	"""
-	 A URL where the resource is found online 
-	"""
-	url = ''
+    def __bool__(self):
+        return self.concept_tag != ''
 
-	"""
-	 The stem of the URL where this resource may be found within the 
-	 provider's website 
-	"""
-	slug = ''
-
-	"""
-	 A string describing the prequesites of this resource 
-	"""
-	prerequisite = ''
-
-	"""
-	 The education level needed to study this resource. 
-	"""
-	education_level = ''
-
-	"""
-	 When was this resource created? 
-	"""
-	created = ''
-
-	"""
-	 When was this resource last modified? 
-	"""
-	date_modified = ''
-
-	"""
-	 When will this resource be available? 
-	"""
-	available = ''
-
-	"""
-	 When will this resource no longer be available? 
-	"""
-	end_date = ''
-
-	"""
-	 How long does it typically take for a student to process the 
-	 material in this resource? 
-	"""
-	typical_learning_time = ''
-
-	"""
-	 What is this resource's rating (of quality) 
-	"""
-	rating = ''
-
-	"""
-	 What is the cost a student would pay to learn this resource. 
-	 
-	"""
-	price = ''
-
-	"""
-	 What t 
-	"""
-	has_version = ''
-
-	"""
-	 Is this a new course? 
-	"""
-	new = ''
-
-	"""
-	 What language is the resource written in? 
-	"""
-	language = ''
-
-	"""
-	 What is the format of the resource 
-	"""
-	format = ''
-
-	"""
-	 What is the license that covers this resource's usage? 
-	"""
-	license = ''
-
-	venue = ''
-
-	is_teacher = []
-
-	has_tag = []
-
-	provider = []
+    def __nonzero__(self):
+        return self.__bool__()
 
 
-	def __init__(self):
-		pass
+class LearningResource(object):
+    """
+     A learning resource could be an MOOC course or program, a university
+     course or program, a tutorial document, a textbook or any other
+     digital resource that has a pedagogical purpose and is indexed
+     in our system.
+    """
+
+    db_fields = ['id', 'title', 'subtitle', 'description', 'short_description', 'syllabus',
+                 'url', 'slug', 'difficulty', 'created', 'date_modified', 'end_date', 'typical_learning_time',
+                 'rating', 'price', 'new', 'language', 'format', 'license', 'venue']
+
+    def __init__(self):
+        """
+         Init all members to default values
+        """
+
+        """
+         Url of the resource.
+        """
+        self.id = ''
+
+        """
+         Title of the resource
+        """
+        self.title = ''
+
+        """
+         Any subtitles that the resource might have
+        """
+        self.subtitle = ''
+
+        """
+         Discription of the resource (usually a paragraph or two from
+         a course catalog)
+        """
+        self.description = ''
+
+        """
+         Simple one or two line description of the resource
+        """
+        self.short_description = ''
+
+        """
+         A description of the contents of the course written in text
+        """
+        self.syllabus = ''
+
+        """
+         A URL where the resource is found online
+        """
+        self._url = ''
+
+        """
+         The stem of the URL where this resource may be found within the
+         provider's website
+        """
+        self.slug = ''
+
+        """
+         A string describing the perquisites of this resource
+        """
+        self.prerequisite = ''
+
+        """
+         The education level needed to study this resource.
+        """
+        self.difficulty = ''
+
+        """
+         When was this resource created?
+        """
+        self.created = ''
+
+        """
+         When was this resource last modified?
+        """
+        self.date_modified = ''
+
+        """
+         When will this resource be available?
+        """
+        self.available = ''
+
+        """
+         When will this resource no longer be available?
+        """
+        self.end_date = ''
+
+        """
+         How long does it typically take for a student to process the
+         material in this resource?
+        """
+        self.typical_learning_time = ''
+
+        """
+         What is this resource's rating (of quality)
+        """
+        self.rating = ''
+
+        """
+         What is the cost a student would pay to learn this resource.
+
+        """
+        self.price = ''
+
+        """
+         Version of the resource
+        """
+        self.has_version = ''
+
+        """
+         Is this a new course?
+        """
+        self.new = ''
+
+        """
+         What language is the resource written in?
+        """
+        self.language = ''
+
+        """
+         What is the format of the resource
+        """
+        self.format = ''
+
+        """
+         What is the license that covers this resource's usage?
+        """
+        self.license = ''
+
+        self.venue = ''
+
+        self.objectives = ''
+
+        self.length = ''
+
+        """
+         Ordered Course-ids (urls) of a series, specialization etc.
+        """
+        self.courses = list()
+        """
+         Set of Instructor instances.
+        """
+        self.instructors = set()
+        """
+         Set of Tag instances.
+        """
+        self.tags = set()
+        """
+         Provider instances of the provider (see class Provider)
+        """
+        self.provider = Provider()
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = extract_url(url)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def print_info(self):
+        pprint(vars(self))
+
+    def __bool__(self):
+        return self.id != ''
+
+    def __nonzero__(self):
+        return self.__bool__()
+
+
+
+
+
