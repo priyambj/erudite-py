@@ -55,7 +55,7 @@ class EDX(WebsiteInterface):
             except:
                 print('xseries failed:', l)
                 print(traceback.format_exc())
-            break
+            # break
 
         print('EDX: Scrape info of courses...')
         for l in tqdm(list(filter(lambda x: 'www.edx.org/course/' in x, course_links))):
@@ -67,7 +67,7 @@ class EDX(WebsiteInterface):
             except:
                 print('course failed:', l)
                 print(traceback.format_exc())
-            break
+            # break
         return data
 
     """
