@@ -2,6 +2,7 @@ from __future__ import print_function
 from scraper.scraper import Scraper
 from scraper.website.coursera import Coursera
 from scraper.website.edx import EDX
+from csv import QUOTE_ALL
 
 scraper = Scraper()
 scraper.register_website(Coursera())
@@ -14,7 +15,7 @@ urls = ['none',
 df_dict = scraper.scrape(urls)
 for key, val in df_dict.items():
     # print(val.head(2))
-    val.to_csv(key + '.csv', encoding='utf-8', index=False)
+    val.to_csv(key + '.csv', encoding='utf-8', index=False, quoting=QUOTE_ALL)
     val.to_pickle(key + '.df')
 
 # please ignore the KeyError on exit - it is a bug in one of the used libraries. I've already submitted a pull request

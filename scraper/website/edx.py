@@ -216,6 +216,8 @@ class EDX(WebsiteInterface):
             split_name = [split_name]
         for s in split_name:
             text = text.strip().split(s)[pos].strip(':').strip().strip('\n')
+        while '\n\n' in text:
+            text = text.replace('\n\n', '\n')
         return text
 
     def get_instructors(self, soup, course, verbose=0):
@@ -269,28 +271,32 @@ class EDX(WebsiteInterface):
                             print(bio.print_info())
                             print('-' * 80)
                         updates = True
+
+                    try:
+                        bio_jobtitle = save_get_text(bio_soup.find('ul', attrs={'class': 'org-roles'}).find('li'))
+                        instructor.job_title = max([bio_jobtitle, instructor.job_title], key=len)
+                        updates = True
+                    except AttributeError:
+                        pass
+                    try:
+                        bio_worksfor = bio_soup.find('li', attrs={'class': 'org-name'})
                         try:
-                            bio_jobtitle = save_get_text(bio_soup.find('ul', attrs={'class': 'org-roles'}).find('li'))
-                            instructor.job_title = max([bio_jobtitle, instructor.job_title], key=len)
-                        except AttributeError:
-                            pass
-                        try:
-                            bio_worksfor = bio_soup.find('li', attrs={'class': 'org-name'})
-                            try:
-                                worksfor_link = bio_worksfor.find('a')['href']
-                                if worksfor_link != '':
-                                    provider = self.get_provider(worksfor_link)
-                                    try:
-                                        provider = self.providers[provider]
-                                    except KeyError:
-                                        self.providers[provider] = provider
-                                    instructor.works_for.add(provider)
-                            except (AttributeError, TypeError):
-                                worksfor_link = ''
-                            if worksfor_link == '':
-                                instructor.works_for = save_get_text(bio_worksfor)
-                        except AttributeError:
-                            pass
+                            worksfor_link = bio_worksfor.find('a')['href']
+                            if worksfor_link != '':
+                                provider = self.get_provider(worksfor_link)
+                                try:
+                                    provider = self.providers[provider]
+                                except KeyError:
+                                    self.providers[provider] = provider
+                                instructor.works_for.add(provider)
+                                updates = True
+                        except (AttributeError, TypeError):
+                            worksfor_link = ''
+                        if worksfor_link == '':
+                            instructor.works_for.add(save_get_text(bio_worksfor))
+                            updates = True
+                    except AttributeError:
+                        pass
 
             if instructor.job_title == '' or len(instructor.works_for) == 0:
                 position = i.find('p', attrs={'class': 'instructor-position'})
@@ -301,8 +307,10 @@ class EDX(WebsiteInterface):
                 position = save_get_text(position).replace(org, '').strip()
                 if instructor.job_title == '':
                     instructor.job_title = position
+                    updates = True
                 if org != '' and len(instructor.works_for) == 0:
                     instructor.works_for.add(org)
+                    updates = True
 
             if updates:
                 self.instructors[instructor] = instructor
@@ -317,10 +325,15 @@ class EDX(WebsiteInterface):
     @staticmethod
     def get_bio(url, verbose=0, return_soup=False):
         soup = get_soup(url, js=True, verbose=verbose)
+        bio = ''
         try:
-            bio = save_get_text(soup.find('p', attrs={'class': 'resume-copy'}).find_next_sibling('p'))
+            bio_part = soup.find('p', attrs={'class': 'resume-copy'})
+            while True:
+                bio += ('\n' + save_get_text(bio_part))
+                bio_part = bio_part.find_next_sibling('p')
         except AttributeError:
-            bio = ''
+            pass
+        bio = bio.strip('\n')
         if return_soup:
             return bio, soup
         else:

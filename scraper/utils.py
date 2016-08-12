@@ -148,9 +148,9 @@ def extract_data(obj, fields, blank_value=''):
                     val = val[0]
                 else:
                     val = ''
-            elif not isinstance(val, basestring):
-                val = str(val)
         except KeyError:
             val = blank_value
+        if not isinstance(val, basestring):
+            val = str(val)
         d.append(val)
     return d

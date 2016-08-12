@@ -72,7 +72,8 @@ class Scraper:
                         data_dict[table_name].append([d.id, '', prereq])
                     elif isinstance(prereq, (tuple, list, set)):
                         for p in prereq:
-                            data_dict[table_name].append([d.id, '', p])
+                            if p:
+                                data_dict[table_name].append([d.id, '', p])
                 for i in d.instructors:
                     if i not in added_instructors:
                         added_instructors.add(i)
@@ -97,7 +98,8 @@ class Scraper:
                                 for w in i.works_for:
                                     if isinstance(w, Provider):
                                         w = w.id
-                                    data_dict[table_name].append([i.id, w, ''])
+                                    if w:
+                                        data_dict[table_name].append([i.id, w, ''])
                     table_name = 'teaches'
                     columns_dict[table_name] = ['instructor_id', 'resource_id']
                     data_dict[table_name].append([i.id, d.id])
