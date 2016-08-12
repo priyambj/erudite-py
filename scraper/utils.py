@@ -22,18 +22,32 @@ def get_soup(url, js=False, wait=5, return_session=False, verbose=0):
         return soup
 
 
-def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0):
+def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0, n_retries=20, retry_sleep=60, new_session=False, reset_session=True):
     url = extract_url(url)
     import dryscrape
 
-    if 'linux' in sys.platform:
+    if not get_js_session.xvfb_started and 'linux' in sys.platform:
         # start xvfb in case no X is running. Make sure xvfb
         # is installed, otherwise this won't work!
         dryscrape.start_xvfb()
+        get_js_session.xvfb_started = True
+    if new_session or get_js_session.sess is None:
+        sess = dryscrape.Session()
+        get_js_session.sess = sess
+    else:
+        sess = get_js_session.sess
+        if reset_session:
+            sess.reset()
 
-    sess = dryscrape.Session()
     sess.set_viewport_size(width=viewport[0], height=viewport[1])
-    sess.visit(url)
+    for i in range(n_retries):
+        try:
+            sess.visit(url)
+            break
+        except Exception as e:
+            sleep(retry_sleep)
+            if i == (n_retries - 1):
+                raise e
 
     # print("loading page from " + url)
     wait_until_session_stable(sess, verbose=verbose)
@@ -45,6 +59,9 @@ def get_js_session(url, viewport=(1024, 768), render_fn=None, verbose=0):
             render_fn += '.png'
         sess.render(render_fn)
     return sess
+
+get_js_session.xvfb_started = False
+get_js_session.sess = None
 
 
 """
