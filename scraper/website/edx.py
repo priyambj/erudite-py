@@ -165,8 +165,11 @@ class EDX(WebsiteInterface):
     @staticmethod
     def get_expanded_soup(url):
         sess = get_js_session(url)
-        click_buttons(sess, "//span[contains(@class, 'see-more-label')]")
-        click_buttons(sess, "//span[contains(@class, 'show-content-cta')]")
+        try:
+            click_buttons(sess, "//span[contains(@class, 'see-more-label')]")
+            click_buttons(sess, "//span[contains(@class, 'show-content-cta')]")
+        except:
+            pass
         wait_until_session_stable(sess)
         soup = BeautifulSoup(sess.body(), "lxml")
         return soup
