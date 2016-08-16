@@ -23,7 +23,7 @@ RUN cd /home/$DUSER && wget --quiet https://repo.continuum.io/archive/Anaconda2-
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
 RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda 
-RUN /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 \
+RUN /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 tensorflow \
     -c pkgw -c floriangeigl -c conda-forge -c bioconda -c jaikumarm
 
 USER root
