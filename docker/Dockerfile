@@ -5,9 +5,9 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
 RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen htop && \
-    apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get upgrade -y --no-install-recommends && \
-    apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
 ENV DUSER erudite
