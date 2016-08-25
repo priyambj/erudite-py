@@ -6,9 +6,8 @@ RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends w
     libglib2.0-0 libxext6 libsm6 libxrender1 \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen htop && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt-get upgrade -y --no-install-recommends && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
+#RUN apt-get update && apt-get upgrade -y --no-install-recommends && \
+#    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV DUSER erudite
 ENV DUID 1000
@@ -17,7 +16,8 @@ RUN useradd -m -s /bin/bash -N -u $DUID $DUSER && \
     chown $DUSER /opt/
 
 USER $DUSER
-RUN mkdir -p /home/$DUSER/ && \
+RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
+    mkdir -p /home/$DUSER/ && \
     mkdir /home/$DUSER/.jupyter && \
     mkdir -p -m 700 /home/$DUSER/.local/share/jupyter && \
     echo "cacert=/etc/ssl/certs/ca-certificates.crt" > /home/$DUSER/.curlrc
@@ -25,8 +25,7 @@ RUN cd /home/$DUSER && wget --quiet https://repo.continuum.io/archive/Anaconda2-
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
 RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda && \
-    /opt/conda/bin/conda clean -i -l -t -y
-RUN /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 tensorflow \
+    /opt/conda/bin/conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 tensorflow \
     -c pkgw -c floriangeigl -c conda-forge -c bioconda -c jaikumarm && \
     /opt/conda/bin/conda clean -i -l -t -y
 
