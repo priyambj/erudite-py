@@ -1,12 +1,10 @@
 FROM ubuntu:16.04
 MAINTAINER Florian Geigl <florian.geigl@gmail.com>
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen && apt-get update --fix-missing && apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
+    locale-gen && apt-get update --fix-missing && apt-get upgrade -y --no-install-recommends && apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen htop && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-#RUN apt-get update && apt-get upgrade -y --no-install-recommends && \
-#    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV DUSER erudite
 ENV DUID 1000
