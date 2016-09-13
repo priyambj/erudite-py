@@ -43,6 +43,6 @@ COPY start-notebook.sh /usr/local/bin/
 COPY startup.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/start-notebook.sh /usr/local/bin/startup.sh && \
     chown -R $DUSER:users /home/$DUSER/.jupyter && \
-    git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
+    #git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
 
 USER $DUSER
