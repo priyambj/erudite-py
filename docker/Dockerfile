@@ -6,7 +6,7 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
-    git mercurial subversion xvfb curl libqt5webkit5 vim screen htop && \
+    git mercurial subversion xvfb curl libqt5webkit5 vim screen htop less && \
     # clean up apt \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
