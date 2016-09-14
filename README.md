@@ -60,18 +60,15 @@ If running start_docker.sh results in the following error
 ``` Error starting userland proxy: listen tcp 0.0.0.0:8888: bind: address already in use.```
 you might want to change the local port in the start_docker.sh script or directly modify and run the docker command
 ```docker run -i -t -v $PWD:/home/erudite/erudite -w=/home/erudite/erudite --rm -p 8888:8888 floriangeigl/erudite``` 
-(see iPython Notebooks section for further information)
+(see Jupyter Notebooks section for further information)
 
-Some important things to mention:
-### iPyhton Notebooks
+### Jupyter Notebooks
 As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just modify the -p paramter to you're preferences (```-p YOUR_DESIRED_PORT:8888```). Modifications of the notebooks are made in you're local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
 
 ### Installing Libraries
 You can install any python libraries needed using conda or pip. Be aware that they are gone as soon as you shut down the container. If the libraries are important for all users of erudite, please add them to our official docker image. 
 
 As an alternative you can remove the ```--rm``` paramter from the docker run cmd. This will prevent removing the container after exiting it. You can list all containers with ```docker ps -a```. Copy the CONTAINER ID and replace floriangeigl/erudite with the ID for re-entering the container. This will keep any changes made to the image over shutdowns. 
-
-Hint: If you need root privileges within the container add ```-u root``` to the run command. 
 
 ### Updating to the latest docker image
 After the inital run you can always update to the latest docker image using:
