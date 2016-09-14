@@ -6,19 +6,19 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen htop && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV DUSER erudite
-ENV DUID 1000
+#ENV DUSER erudite
+#ENV DUID 1000
 ENV CONDA_DIR /opt/conda/
-RUN useradd -m -s /bin/bash -N -u $DUID $DUSER && \
-    chown $DUSER /opt/ && \
+RUN #useradd -m -s /bin/bash -N -u $DUID $DUSER && \
+    #chown $DUSER /opt/ && \
     echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
-USER $DUSER
-RUN mkdir -p /home/$DUSER/ && \
-    mkdir /home/$DUSER/.jupyter && \
-    mkdir -p -m 700 /home/$DUSER/.local/share/jupyter && \
-    echo "cacert=/etc/ssl/certs/ca-certificates.crt" > /home/$DUSER/.curlrc
-RUN cd /home/$DUSER && wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
+#USER $DUSER
+RUN #mkdir -p /home/$DUSER/ && \
+    mkdir .jupyter && \
+    mkdir -p -m 700 .local/share/jupyter && \
+    echo "cacert=/etc/ssl/certs/ca-certificates.crt" > .curlrc
+RUN wget --quiet https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh -O ~/anaconda.sh && \
     /bin/bash ~/anaconda.sh -b -p /opt/conda && \
     rm ~/anaconda.sh
 RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda && \
@@ -26,23 +26,22 @@ RUN /opt/conda/bin/conda update -y conda conda-build conda-env anaconda && \
     -c pkgw -c floriangeigl -c conda-forge -c bioconda -c jaikumarm && \
     /opt/conda/bin/conda clean -i -l -t -y
 
-USER root
+#USER root
 ENV PATH /opt/conda/bin:$PATH
-RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
-    touch /etc/apt/sources.list.d/graph-tool.list && \
-    echo 'deb http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
-    echo 'deb-src http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
-    apt-get update && apt-get install -y --no-install-recommends python-graph-tool && \
-    ln -s /usr/lib/python2.7/dist-packages/graph_tool /opt/conda/lib/python2.7/site-packages/graph_tool && \
-    apt-get clean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
+#RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
+#    touch /etc/apt/sources.list.d/graph-tool.list && \
+#    echo 'deb http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
+#    echo 'deb-src http://downloads.skewed.de/apt/xenial xenial universe' >> /etc/apt/sources.list.d/graph-tool.list && \
+#    apt-get update && apt-get install -y --no-install-recommends python-graph-tool && \
+#    ln -s /usr/lib/python2.7/dist-packages/graph_tool /opt/conda/lib/python2.7/site-packages/graph_tool && \
+#    apt-get clean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
 EXPOSE 8888
-WORKDIR /home/$DUSER
+#WORKDIR /home/$DUSER
 CMD ["startup.sh"]
 
 COPY start-notebook.sh /usr/local/bin/
 COPY startup.sh /usr/local/bin/
-RUN chmod 777 /usr/local/bin/start-notebook.sh /usr/local/bin/startup.sh && \
-    chown -R $DUSER:users /home/$DUSER/.jupyter && \
+#RUN chmod 777 /usr/local/bin/start-notebook.sh /usr/local/bin/startup.sh && \
+#    chown -R $DUSER:users /home/$DUSER/.jupyter && \
     #git clone https://github.com/BMKEG/erudite-py.git /home/$DUSER/erudite
 
-USER $DUSER
