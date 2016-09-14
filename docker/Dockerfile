@@ -5,7 +5,7 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen && apt-get update --fix-missing && \
     apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends wget bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender1 \
+    libglib2.0-0 libxext6 libsm6 libxrender1 gcc g++ \
     git mercurial subversion xvfb curl libqt5webkit5 vim screen htop less && \
     # clean up apt \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -44,7 +44,7 @@ RUN conda update -y conda conda-build conda-env && \
     conda clean -i -l -t -y
 
 # add libraries over pip here
-RUN pip install -y textstat && \
+RUN pip install textstat git+https://github.com/dask/dask-learn.git wordcloud && \
     # NLTK Project datasets
     mkdir -p /usr/share/nltk_data && \
     # NLTK Downloader no longer continues smoothly after an error, so we explicitly list
