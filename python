@@ -1,0 +1,2 @@
+#!/bin/bash
+docker run -i -t -v $PWD:/tmp/erudite/ -w=/tmp/erudite/ --rm floriangeigl/erudite python $@
