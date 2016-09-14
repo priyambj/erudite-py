@@ -45,33 +45,40 @@ We also provide a docker image including all needed libraries to run the framewo
 ```
 # Clone our github repositiory into erudite
 git clone git@github.com:BMKEG/erudite-py.git erudite
+
 # move into the erudite folder
 cd erudite
+
 # fix folder permissions
 ./init.sh
+
 # run the docker image (first run takes some time, because it needs to download the whole image)
 ./start_docker.sh
 ``` 
 
-Congratulations - You're now within the docker image at /home/erudite/erudite. This directory is you're github repository mounted into docker, meaning that any changes you make will be available after exiting docker in you're local repository. 
+Congratulations - You're now within the docker container at /opt/erudite. This directory is you're github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in you're local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
 
 ###Troubleshooting
 If running start_docker.sh results in the following error 
 ``` Error starting userland proxy: listen tcp 0.0.0.0:8888: bind: address already in use.```
-you might want to change the local port in the start_docker.sh script or directly modify and run the docker command
-```docker run -i -t -v $PWD:/home/erudite/erudite -w=/home/erudite/erudite --rm -p 8888:8888 floriangeigl/erudite``` 
+you might want to pass another local port to the start_docker.sh script ```./start_docker.sh PORT``` or directly modify and run the docker command
+```docker run -i -t -v $PWD:/home/erudite/erudite -w=/home/erudite/erudite --rm -p PORT:8888 floriangeigl/erudite``` 
 (see Jupyter Notebooks section for further information)
 
 ### Jupyter Notebooks
 As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just modify the -p paramter to you're preferences (```-p YOUR_DESIRED_PORT:8888```). Modifications of the notebooks are made in you're local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
 
-### Installing Libraries
-You can install any python libraries needed using conda or pip. Be aware that they are gone as soon as you shut down the container. If the libraries are important for all users of erudite, please add them to our official docker image. 
+### I just want to run a python script
+You can simply execute ```./python your_script.py your args``` to use the container's python installation.
 
-As an alternative you can remove the ```--rm``` paramter from the docker run cmd. This will prevent removing the container after exiting it. You can list all containers with ```docker ps -a```. Copy the CONTAINER ID and replace floriangeigl/erudite with the ID for re-entering the container. This will keep any changes made to the image over shutdowns. 
+### Installing Libraries
+You can install any python libraries needed using conda or pip within the docker container. Be aware that they are gone as soon as you shut down the container. If the libraries are important for all users of erudite, please add them to our official docker image. 
+
+As an alternative you can remove the ```--rm``` paramter from the docker run cmd. This will prevent removing the container after exiting it. You can list all containers with ```docker ps -a```. Copy the CONTAINER ID and replace in the docker run cmd  ```floriangeigl/erudite``` with the CONTAINER ID for re-entering the container. This will keep any changes made to the image over shutdowns. 
 
 ### Updating to the latest docker image
 After the inital run you can always update to the latest docker image using:
 ```
 docker pull floriangeigl/erudite
 ```
+Since all your files should be in your local repository, this command can be exectued savely without losing any data.
