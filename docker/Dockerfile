@@ -11,7 +11,7 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # set up some basics and add conda to the path for all users
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
+RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh \
     mkdir .jupyter && \
     mkdir -p -m 700 .local/share/jupyter && \
     echo "cacert=/etc/ssl/certs/ca-certificates.crt" > .curlrc
