@@ -47,6 +47,8 @@ We also provide a docker image including all needed libraries to run the framewo
 git clone git@github.com:BMKEG/erudite-py.git erudite
 # move into the erudite folder
 cd erudite
+# fix folder permissions
+./init.sh
 # run the docker image (first run takes some time, because it needs to download the whole image)
 docker run -i -t -v $PWD:/home/erudite/erudite -w=/home/erudite/erudite --rm -p 8888:8888 floriangeigl/erudite
 ```
