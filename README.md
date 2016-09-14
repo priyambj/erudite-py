@@ -41,7 +41,7 @@ This is scraper goes to `https://www.edx.org/course/subject/computer-science`, a
 
 Docker
 ---
-We also provide a docker image including all needed libraries to run the framework. We suggest the following procedure for using it on MacOs or any Linux distribution with the newest docker version installed.
+We also provide a docker image including all needed libraries to run the framework. We suggest the following procedure for using it on MacOs or any Linux distribution with the newest docker version installed (https://docs.docker.com/engine/installation/).
 ```
 # Clone our github repositiory into erudite
 git clone git@github.com:BMKEG/erudite-py.git erudite
