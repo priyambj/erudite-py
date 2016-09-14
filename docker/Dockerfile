@@ -36,6 +36,7 @@ RUN apt-key adv --keyserver pgp.skewed.de --recv-key 98507F25 && \
 RUN conda update -y conda conda-build conda-env && \
     # you can add further conda libraries here \
     conda install -y dryscrape xgboost seaborn tqdm termcolor joblib keras pygobject3 gtk3 tensorflow \
+    pymysql \
     # and further conda channels here \
     -c pkgw -c floriangeigl -c conda-forge -c bioconda -c jaikumarm \
     && \
