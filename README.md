@@ -72,7 +72,7 @@ As soon as you start the image, you can access an ipython notebook server with y
 You can simply execute ```./python your_script.py your args``` to use the container's python installation.
 
 ### Installing Libraries
-You can install any python libraries needed using conda or pip within the docker container. Be aware that they are gone as soon as you shut down the container. If the libraries are important for all users of erudite, please add them to our official docker image. 
+You can install any python libraries needed using conda or pip within the docker container. Be aware that they are gone as soon as you shut down the container. If the libraries are important for all users of erudite, please add them to our official docker image. Any changes you make to docker/Dockerfile will automatically trigger a rebuild of the image in the docker cloud. If the build succeeds (check at https://hub.docker.com/r/floriangeigl/erudite/) you can update your local docker image to the newest one (see Updating to latest docker image)
 
 As an alternative you can remove the ```--rm``` paramter from the docker run cmd. This will prevent removing the container after exiting it. You can list all containers with ```docker ps -a```. Copy the CONTAINER ID and replace in the docker run cmd  ```floriangeigl/erudite``` with the CONTAINER ID for re-entering the container. This will keep any changes made to the image over shutdowns. 
 
