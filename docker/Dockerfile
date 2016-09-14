@@ -46,7 +46,14 @@ RUN conda update -y conda conda-build conda-env && \
 # enable this command to install libraries using pip
 # RUN pip install 
 
-EXPOSE 8888 # expose the jupyter port 
-CMD ["startup.sh"] # start jupyter at container start
-COPY start-notebook.sh /usr/local/bin/ # copy jupyter startscript into the container
-COPY startup.sh /usr/local/bin/ # copy startup script into the container
+# expose jupyter port 
+EXPOSE 8888 
+
+# start jupyter at container start
+CMD ["startup.sh"] 
+
+# copy jupyter startscript into the container
+COPY start-notebook.sh /usr/local/bin/ 
+
+# copy startup script into the container
+COPY startup.sh /usr/local/bin/ 
