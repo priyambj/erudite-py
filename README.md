@@ -81,4 +81,4 @@ After the inital run you can always update to the latest docker image using:
 ```
 docker pull floriangeigl/erudite
 ```
-Since all your files should be in your local repository, this command can be exectued savely without losing any data.
+This command can be exectued savely without losing any data since all your files should be in your local repository.
