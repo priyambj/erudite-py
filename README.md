@@ -56,7 +56,7 @@ cd erudite
 ./start_docker.sh
 ``` 
 
-Congratulations - You're now within the docker container at /opt/erudite. This directory is you're github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in you're local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
+Congratulations - You're now within the docker container at /opt/erudite. This directory is your github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in your local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
 
 ###Troubleshooting
 If running start_docker.sh results in the following error 
@@ -66,7 +66,7 @@ you might want to pass another local port to the start_docker.sh script ```./sta
 (see Jupyter Notebooks section for further information)
 
 ### Jupyter Notebooks
-As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just modify the -p paramter to you're preferences (```-p YOUR_DESIRED_PORT:8888```). Modifications of the notebooks are made in you're local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
+As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just modify the -p paramter to you're preferences (```-p YOUR_DESIRED_PORT:8888```). Modifications of the notebooks are made in your local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
 
 ### I just want to run a python script
 You can simply execute ```./python your_script.py your args``` to use the container's python installation.
