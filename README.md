@@ -56,7 +56,7 @@ cd erudite
 ./start_docker.sh
 ``` 
 
-Congratulations - You're now within the docker container at /opt/erudite. This directory is your github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in your local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
+Congratulations - You're now within the docker container at /tmp/erudite. This directory is your github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in your local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
 
 ###Troubleshooting
 If running start_docker.sh results in the following error 
