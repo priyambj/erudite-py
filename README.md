@@ -41,7 +41,7 @@ This is scraper goes to `https://www.edx.org/course/subject/computer-science`, a
 
 Docker
 ---
-We also provide a docker image including all needed libraries to run the framework. We suggest the following procedure for using it on MacOs or any Linux distribution with the newest docker version installed.
+We also provide a docker image including all needed libraries to run the framework. We suggest the following procedure for using it on MacOs or any Linux distribution with the newest docker version installed (https://docs.docker.com/engine/installation/).
 ```
 # Clone our github repositiory into erudite
 git clone git@github.com:BMKEG/erudite-py.git erudite
@@ -56,7 +56,7 @@ cd erudite
 ./start_docker.sh
 ``` 
 
-Congratulations - You're now within the docker container at /opt/erudite. This directory is your github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in your local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
+Congratulations - You're now within the docker container at /tmp/erudite. This directory is your github repository mounted into docker, meaning that any changes you make (e.g., creation or modification of files) will be available after exiting docker in your local repository. You can exit the docker container by simply typing ```exit```. After this initialization you can always run the docker container by just typing ```./start_docker.sh```.
 
 ###Troubleshooting
 If running start_docker.sh results in the following error 
@@ -66,7 +66,7 @@ you might want to pass another local port to the start_docker.sh script ```./sta
 (see Jupyter Notebooks section for further information)
 
 ### Jupyter Notebooks
-As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just modify the -p paramter to you're preferences (```-p YOUR_DESIRED_PORT:8888```). Modifications of the notebooks are made in your local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
+As soon as you start the image, you can access an ipython notebook server with your browser on port 8888 (if you want to change this port just pass your desired port to the ./start_docker.sh script ( ```./start_docker.sh PORT``` ) or modify the -p paramter to you're preferences (```-p PORT:8888```). Modifications of the notebooks are made in your local github repository, meaning that they are available after you shut down the docker image. If you're running docker on a server make use of port-forwarding to access the notebooks (```ssh -L 8888:127.0.0.1:8888``` where the first 8888 is your local desired port and the second refers to the port on the server - if you changed ```-p``` to another port please adjust the later 8888 in this cmd)
 
 ### I just want to run a python script
 You can simply execute ```./python your_script.py your args``` to use the container's python installation.
@@ -81,4 +81,4 @@ After the inital run you can always update to the latest docker image using:
 ```
 docker pull floriangeigl/erudite
 ```
-Since all your files should be in your local repository, this command can be exectued savely without losing any data.
+This command can be exectued savely without losing any data since all your files should be in your local repository.
