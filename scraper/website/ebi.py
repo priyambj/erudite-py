@@ -125,6 +125,7 @@ class EBI (WebsiteInterface):
         return course
 
     def get_course_syllabus(self,soup):
+        syllabus_content= " "
         syllabus_panel = soup.find('aside',attrs={'class':'grid_6'}).find('ul',attrs={'class':'menu'})
         try:
             syllabus_content = '\n'.join(filter(lambda x: x != '', [save_get_text(p) for p in
