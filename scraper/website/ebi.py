@@ -99,9 +99,13 @@ class EBI (WebsiteInterface):
         instructor_link = self.base_url + about_course.find('div',attrs={'class':'field-name-author-list'}).find('a')['href']
         category = about_course.findAll('div',attrs={'class':'course-subject-term'})
         
-        for c in range(len(category)):
-            course_cat= category[c].find('a')['href']
-            course.courses.append(course_cat)
+        try :
+            for c in range(len(category)):
+                course_cat= category[c].find('a')['href']
+                course.courses.append(course_cat)
+        except AttributeError:
+            pass
+        
         
         course.difficulty = save_get_text(about_course.find('div',attrs={'class':'field-name-field-course-level'}))
     
