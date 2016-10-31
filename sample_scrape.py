@@ -2,14 +2,22 @@ from __future__ import print_function
 from scraper.scraper import Scraper
 from scraper.website.coursera import Coursera
 from scraper.website.edx import EDX
+from scraper.website.bigdatauniversity import BigDataUniversity
+from scraper.website.ebi import EBI
+from scraper.website.videolectures import VideoLectures
 from csv import QUOTE_ALL
 
 scraper = Scraper()
 scraper.register_website(Coursera())
 scraper.register_website(EDX())
+scraper.register_website(BigDataUniversity())
+scraper.register_website(EBI())
+scraper.register_website(VideoLectures())
+
 
 urls = ['none',
-        'https://www.edx.org/course/subject/data-analysis-statistics']
+        'https://www.edx.org/course/subject/data-analysis-statistics',
+       'http://videolectures.net/']
 #        'https://www.coursera.org/browse/data-science']
 
 df_dict = scraper.scrape(urls)
